@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Торговая Комиссия Станции — Калькулятор Оценщика (Probably Stolen)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400..800;1,400..800&family=Oranienbaum&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #c5c1b0;
+            --paper-dark: #b4b09e;
+            --paper-border: #8a8675;
+            --commission-blue: #2b4960;
+            --commission-stamp: rgba(52, 88, 120, 0.36);
+            --ink-dark: #2c2d2a;
+            --ink-muted: #4a4b46;
+            --bonus-green: #2e6f40;
+            --penalty-red: #8c3b3b;
+            --receipt-bg: #f4f1e6;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: url('Gemini_Generated_Image_qbmhq1qbmhq1qbmh_3.jpg') center/cover no-repeat fixed;
+            color: var(--ink-dark);
+            font-family: 'PT Serif', Georgia, serif;
+            overflow-x: hidden;
+        }
+
+        /* Шрифты */
+        .font-pixel-title {
+            font-family: 'Rubik', sans-serif;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .font-pixel-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .font-retro {
+            font-family: 'Press Start 2P', monospace;
+        }
+        .font-manual {
+            font-family: 'PT Serif', Georgia, serif;
+        }
+
+        /* Пиксельная четкость для SVG и фонов */
+        .pixelated {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* Стилизация страницы руководства */
+        .manual-page {
+            background-color: var(--paper-bg);
+            background-image: 
+                radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0),
+                linear-gradient(to right, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.02) 24px, transparent 40px);
+            background-size: 4px 4px, 100% 100%;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.75),
+                inset 0 0 0 2px #9e9a89,
+                inset 0 0 30px rgba(60, 55, 40, 0.15);
+            position: relative;
+            border-radius: 4px 10px 10px 4px;
+        }
+
+        /* Кольца пружинного переплета слева */
+        .spiral-binding {
+            position: absolute;
+            left: -14px;
+            top: 24px;
+            bottom: 24px;
+            width: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .spiral-ring {
+            width: 28px;
+            height: 18px;
+            position: relative;
+        }
+        /* Дырка от перфорации в бумаге */
+        .spiral-ring::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 2px;
+            width: 12px;
+            height: 14px;
+            background: #25282c;
+            border: 2px solid #595b56;
+            border-radius: 2px;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        /* Металлическая двойная дужка */
+        .spiral-ring::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 22px;
+            height: 10px;
+            background: linear-gradient(to bottom, #9ba3ab 0%, #eef2f5 30%, #50565c 70%, #2b2f33 100%);
+            border: 1px solid #1e2226;
+            border-radius: 3px;
+            z-index: 2;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+
+        /* Разделитель ТОРГОВАЯ КОМИССИЯ СТАНЦИИ как на скриншотах */
+        .commission-header-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: var(--commission-blue);
+            font-family: 'Rubik', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+
+        /* Чек оценки (справа) */
+        .receipt-card {
+            background-color: var(--receipt-bg);
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.85),
+                0 0 0 1px rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        /* Зубчатый край чека сверху и снизу */
+        .receipt-jagged-top {
+            background: linear-gradient(135deg, var(--receipt-bg) 50%, transparent 50%), linear-gradient(225deg, var(--receipt-bg) 50%, transparent 50%);
+            background-position: top left, top left;
+            background-size: 16px 10px;
+            background-repeat: repeat-x;
+            height: 10px;
+            width: 100%;
+            transform: rotate(180deg);
+        }
+        .receipt-jagged-bottom {
+            background: linear-gradient(135deg, var(--receipt-bg) 50%, transparent 50%), linear-gradient(225deg, var(--receipt-bg) 50%, transparent 50%);
+            background-position: bottom left, bottom left;
+            background-size: 16px 10px;
+            background-repeat: repeat-x;
+            height: 10px;
+            width: 100%;
+        }
+
+        /* Кастомные заметные галочки (чекбоксы) в стиле станции */
+        .check-row {
+            transition: all 0.12s ease;
+            border: 2px solid rgba(43, 73, 96, 0.22);
+            background: rgba(255, 255, 255, 0.22);
+        }
+        .check-row:hover {
+            background: rgba(255, 255, 255, 0.42);
+            border-color: rgba(43, 73, 96, 0.5);
+            transform: translateX(2px);
+        }
+        .check-row.active-bonus {
+            background: rgba(46, 111, 64, 0.16);
+            border-color: #2e6f40;
+            box-shadow: inset 4px 0 0 #2e6f40;
+        }
+        .check-row.active-penalty {
+            background: rgba(140, 59, 59, 0.16);
+            border-color: #8c3b3b;
+            box-shadow: inset 4px 0 0 #8c3b3b;
+        }
+        .check-row.active-neutral {
+            background: rgba(43, 73, 96, 0.15);
+            border-color: #2b4960;
+            box-shadow: inset 4px 0 0 #2b4960;
+        }
+        .check-row.active-forgery {
+            background: rgba(185, 28, 28, 0.22);
+            border-color: #b91c1c;
+            box-shadow: inset 6px 0 0 #b91c1c;
+        }
+
+        /* Квадрат галочки */
+        .pixel-checkbox {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border: 3px solid #2b4960;
+            background: #dcd8c8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18);
+            transition: all 0.1s ease;
+        }
+        .check-row.active-bonus .pixel-checkbox {
+            background: #2e6f40;
+            border-color: #1e4d2b;
+            color: #fff;
+        }
+        .check-row.active-penalty .pixel-checkbox {
+            background: #8c3b3b;
+            border-color: #632424;
+            color: #fff;
+        }
+        .check-row.active-neutral .pixel-checkbox {
+            background: #2b4960;
+            border-color: #1b3142;
+            color: #fff;
+        }
+        .check-row.active-forgery .pixel-checkbox {
+            background: #b91c1c;
+            border-color: #7f1d1d;
+            color: #fff;
+        }
+
+        /* Карточки выбора материала руки / производителя */
+        .variant-card {
+            border: 2px solid rgba(43, 73, 96, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .variant-card:hover {
+            background: rgba(255, 255, 255, 0.38);
+            border-color: #2b4960;
+            transform: translateY(-2px);
+        }
+        .variant-card.selected {
+            background: rgba(43, 73, 96, 0.16);
+            border: 3px solid #2b4960;
+            box-shadow: 0 4px 12px rgba(43, 73, 96, 0.25);
+        }
+
+        /* Кнопки со стола оценщика (+ зеленая и X красная) */
+        .desk-btn-green {
+            background: linear-gradient(180deg, #52a568 0%, #3b804e 100%);
+            border: 2px solid #1e4629;
+            box-shadow: 0 4px 0 #1e4629, inset 0 2px 0 rgba(255,255,255,0.3);
+            color: #e9f7ed;
+            transition: all 0.08s ease;
+        }
+        .desk-btn-green:hover {
+            filter: brightness(1.08);
+        }
+        .desk-btn-green:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #1e4629;
+        }
+
+        .desk-btn-red {
+            background: linear-gradient(180deg, #b85349 0%, #8f3931 100%);
+            border: 2px solid #4d1b16;
+            box-shadow: 0 4px 0 #4d1b16, inset 0 2px 0 rgba(255,255,255,0.25);
+            color: #fceceb;
+            transition: all 0.08s ease;
+        }
+        .desk-btn-red:hover {
+            filter: brightness(1.08);
+        }
+        .desk-btn-red:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #4d1b16;
+        }
+
+        /* Табы сверху */
+        .station-tab {
+            background: #262e36;
+            color: #a3b1bd;
+            border: 2px solid #3c4854;
+            border-bottom: none;
+            transition: all 0.15s ease;
+        }
+        .station-tab:hover {
+            background: #313b45;
+            color: #e2e8f0;
+        }
+        .station-tab.active {
+            background: var(--paper-bg);
+            color: var(--commission-blue);
+            border-color: #9e9a89;
+            font-weight: 700;
+            transform: translateY(2px);
+            z-index: 10;
+        }
+
+        /* Анимация штампа на чеке */
+        @keyframes stampBounce {
+            0% { transform: scale(1.8) rotate(-12deg); opacity: 0; }
+            70% { transform: scale(0.95) rotate(-8deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-8deg); opacity: 0.92; }
+        }
+        .stamp-anim {
+            animation: stampBounce 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1b2026;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+</style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between">
+
+    <!-- Настраиваемый слой затемнения фона (чтобы фон не бросался в глаза, а акцент был на ЧЕКЕ и ГАЛОЧКАХ) -->
+    <div id="bgDimmerOverlay" class="absolute inset-0 transition-opacity duration-300 pointer-events-none" style="background: radial-gradient(circle at 50% 40%, rgba(15, 19, 24, 0.68) 0%, rgba(10, 12, 16, 0.88) 100%);"></div>
+
+    <!-- ================= ВЕРХНЯЯ ПАНЕЛЬ УПРАВЛЕНИЯ СТАНЦИИ ================= -->
+    <header class="relative z-20 bg-[#1b2229]/95 border-b-2 border-[#394652] px-3 sm:px-6 py-2.5 shadow-xl backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- Логотип и название -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded bg-[#2b4960] border-2 border-[#6a8ea8] flex items-center justify-center shadow-inner text-[#e2dfd3] font-bold text-lg font-pixel-mono">
+                    STC
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-pixel-mono uppercase tracking-widest text-[#7fa6c4]">Probably Stolen // Терминал v2.4</span>
+                        <span id="editModeBadge" class="hidden px-2 py-0.5 text-[11px] font-pixel-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded">
+                            РЕЖИМ НАСТРОЙКИ ЦЕН
+                        </span>
+                    </div>
+                    <h1 class="text-base sm:text-lg font-bold text-[#e6e2d3] font-pixel-title tracking-wide">
+                        Калькулятор Оценщика Станции
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Панель быстрых настроек: Затемнение фона, Свой фон, Звук -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                
+                <!-- Ползунок затемнения фона + загрузка своего скрина -->
+                <div class="flex items-center gap-2 bg-[#13181d] border border-[#34404b] rounded px-2.5 py-1.5 text-xs text-slate-300">
+                    <label for="bgOpacityRange" class="font-pixel-mono text-[11px] text-slate-400 whitespace-nowrap" title="Настроить яркость фона стола, чтобы акцент был на чеке">
+                        Фон стола:
+                    </label>
+                    <input id="bgOpacityRange" type="range" min="30" max="95" value="72" 
+                        class="w-20 accent-[#588bae] cursor-pointer"
+                        oninput="updateBgDimmer(this.value)"
+                        title="Затемнение фона (72% по умолчанию)">
+                    
+                    <label class="cursor-pointer bg-[#25313b] hover:bg-[#31414e] text-[#a9c7df] border border-[#425869] px-2 py-0.5 rounded font-pixel-mono text-[11px] transition" title="Загрузить свой 4-й скриншот фона с компьютера">
+                        🖼️ Свой фон
+                        <input type="file" id="bgFileInput" accept="image/*" class="hidden" onchange="handleCustomBgUpload(event)">
+                </label>
+                <button id="resetBgBtn" onclick="resetCustomBg()" class="hidden text-rose-400 hover:text-rose-300 font-bold px-1" title="Вернуть стандартный фон">✕</button>
+            </div>
+
+            <!-- Скрыть интерфейс -->
+            <button id="toggleUiBtn" onclick="toggleUi()" 
+                class="px-2.5 py-1.5 rounded text-xs font-pixel-mono bg-[#25303b] hover:bg-[#32414f] text-[#a9c7df] border border-[#485b6b] transition"
+                title="Скрыть вкладки и чеки, чтобы посмотреть только фон">
+                👁️ Скрыть интерфейс
+            </button>
+
+            <!-- Звук -->
+            <button id="soundToggleBtn" onclick="toggleSound()" 
+                class="px-2.5 py-1.5 rounded text-xs font-pixel-mono bg-[#25303b] hover:bg-[#32414f] text-[#a9c7df] border border-[#485b6b] transition"
+                title="Вкл/Выкл звуки терминала и штампа">
+                🔊 Звук
+            </button>
+        </div>
+    </header>
+
+    <!-- ================= ОСНОВНАЯ РАБОЧАЯ ЗОНА ================= -->
+    <main id="mainContent" class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 pt-4 pb-10 flex flex-col transition-opacity duration-300">
+
+        <!-- ВКЛАДКИ ТОВАРОВ (ТАБЫ) -->
+        <div class="flex flex-wrap items-end gap-1.5 sm:gap-2 pl-2 sm:pl-4 border-b-2 border-[#8a8675]/60 mb-0" id="tabsContainer">
+            <!-- Рендерится динамически через JS -->
+        </div>
+
+        <!-- ДВУХКОЛОНОЧНЫЙ МАКЕТ: СЛЕВА РУКОВОДСТВО С ГАЛОЧКАМИ, СПРАВА КРУПНЫЙ ЧЕК -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pt-0">
+
+            <!-- ================= ЛЕВАЯ КОЛОНКА: СТРАНИЦА РУКОВОДСТВА И ГАЛОЧКИ (7 колонок) ================= -->
+            <section class="lg:col-span-7 manual-page p-5 sm:p-8 pl-7 sm:pl-11 min-h-[640px] flex flex-col justify-between">
+                
+                <!-- Металлические кольца переплета слева (как на скринах) -->
+                <div class="spiral-binding" aria-hidden="true">
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                    <div class="spiral-ring"></div>
+                </div>
+
+                <!-- Восьмиугольный синий штамп STATION TRADE COMMISSION (в правом верхнем углу страницы) -->
+                <div class="absolute top-14 right-5 sm:right-8 w-36 h-28 pointer-events-none opacity-85 select-none z-0">
+                    <svg viewBox="0 0 180 140" class="w-full h-full">
+                        <polygon points="35,8 145,8 172,35 172,105 145,132 35,132 8,105 8,35" fill="none" stroke="rgba(46, 83, 117, 0.42)" stroke-width="3.5"/>
+                        <polygon points="39,14 141,14 166,39 166,101 141,126 39,126 14,101 14,39" fill="none" stroke="rgba(46, 83, 117, 0.35)" stroke-width="1.5"/>
+                        <polygon points="52,32 128,32 146,50 146,90 128,108 52,108 34,90 34,50" fill="none" stroke="rgba(46, 83, 117, 0.35)" stroke-width="1.5"/>
+                        <text x="90" y="28" text-anchor="middle" fill="rgba(46, 83, 117, 0.48)" font-family="JetBrains Mono, monospace" font-weight="bold" font-size="11" letter-spacing="1">STATION-TRADE</text>
+                        <text x="90" y="121" text-anchor="middle" fill="rgba(46, 83, 117, 0.48)" font-family="JetBrains Mono, monospace" font-weight="bold" font-size="11" letter-spacing="1.5">COMMISSION</text>
+                        <text x="23" y="75" text-anchor="middle" fill="rgba(46, 83, 117, 0.45)" font-size="14">★</text>
+                        <text x="157" y="75" text-anchor="middle" fill="rgba(46, 83, 117, 0.45)" font-size="14">★</text>
+                        <circle cx="80" cy="66" r="15" fill="none" stroke="rgba(46, 83, 117, 0.4)" stroke-width="2.5"/>
+                        <circle cx="103" cy="76" r="12" fill="rgba(197, 193, 176, 0.9)" stroke="rgba(46, 83, 117, 0.4)" stroke-width="2.5"/>
+                    </svg>
+                </div>
+
+                <!-- Верхняя шапка руководства -->
+                <div class="relative z-10">
+                    <!-- Линия ТОРГОВАЯ КОМИССИЯ СТАНЦИИ -->
+                    <div class="commission-header-line mb-2">
+                        <svg class="h-4 w-16 sm:w-28 shrink-0" viewBox="0 0 120 16" fill="none">
+                            <path d="M2 2 L10 10 L110 10 L118 15" stroke="#2b4960" stroke-width="3.5" stroke-linecap="square"/>
+                        </svg>
+                        <span class="text-sm sm:text-lg md:text-xl font-extrabold tracking-wider text-[#2b4960] text-center whitespace-nowrap">
+                            ТОРГОВАЯ КОМИССИЯ СТАНЦИИ
+                        </span>
+                        <svg class="h-4 w-16 sm:w-28 shrink-0" viewBox="0 0 120 16" fill="none">
+                            <path d="M118 2 L110 10 L10 10 L2 15" stroke="#2b4960" stroke-width="3.5" stroke-linecap="square"/>
+                        </svg>
+                    </div>
+
+                    <!-- Заголовок текущего товара -->
+                    <h2 id="manualTitle" class="text-xl sm:text-2xl font-bold text-center text-[#2c2d2a] font-sans mb-3">
+                        Руководство по оценке кибернетической руки
+                    </h2>
+
+                    <!-- Описание -->
+                    <p id="manualSubtitle" class="text-sm sm:text-[15px] text-[#3d3e3a] leading-relaxed mb-4 pr-4">
+                        Цены на кибернетические руки на Станции сильно различаются. Это руководство поможет определить справедливую рыночную стоимость любого кибернетического протеза руки.
+                    </p>
+
+                    <!-- Плашка базовой и минимальной цены -->
+                    <div class="bg-[#b5b19f]/80 border-2 border-[#827e6d] rounded p-3 mb-5 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs uppercase font-pixel-mono font-bold text-[#2b4960] tracking-wider">
+                                Базовая и минимальная стоимость
+                            </div>
+                            <div id="baseMinHintText" class="text-xs sm:text-sm text-[#383935] mt-0.5">
+                                Минимальная цена даже самого плохого подлинного товара не опускается ниже порога.
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 sm:gap-4 font-pixel-mono">
+                            <div class="bg-[#c5c1b0] border border-[#7c7867] px-3 py-1.5 rounded text-center">
+                                <span class="block text-[10px] uppercase text-[#4d4e49]">Базовая цена</span>
+                                <div id="basePriceDisplay" class="text-base sm:text-lg font-extrabold text-[#2b4960]">100 Кр</div>
+                            </div>
+                            <div class="bg-[#c5c1b0] border border-[#7c7867] px-3 py-1.5 rounded text-center">
+                                <span class="block text-[10px] uppercase text-[#4d4e49]">Мин. цена</span>
+                                <div id="minPriceDisplay" class="text-base sm:text-lg font-extrabold text-[#2e6f40]">50 Кр</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ДИНАМИЧЕСКОЕ СОДЕРЖИМОЕ ВКЛАДКИ (СТРОГО ПО СКРИНШОТАМ ИГРЫ) -->
+                    <div id="manualInteractiveContent" class="space-y-6">
+                        <!-- Заполняется скриптом -->
+                    </div>
+                </div>
+
+                <!-- Нижний колонтитул страницы руководства -->
+                <div class="relative z-10 mt-8 pt-3 border-t border-[#9e9a89] flex items-center justify-between text-xs font-pixel-mono text-[#5a5b54]">
+                    <span>ДОКУМЕНТ ТОРГОВОЙ КОМИССИИ СТАНЦИИ</span>
+                    <span id="manualPageFooter" class="italic font-serif text-sm">Стр. 1–4</span>
+                </div>
+            </section>
+
+            <!-- ================= ПРАВАЯ КОЛОНКА: ЧЕК ОЦЕНКИ (КВИТАНЦИЯ) (5 колонок) ================= -->
+            <aside class="lg:col-span-5 lg:sticky lg:top-4 space-y-4">
+                
+                <!-- САМ ЧЕК (КВИТАНЦИЯ) -->
+                <div class="filter drop-shadow-2xl">
+                    <div class="receipt-jagged-top"></div>
+                    
+                    <div class="receipt-card px-5 sm:px-7 py-5 text-[#22252a] font-pixel-mono">
+                        
+                        <!-- Верх чека -->
+                        <div class="text-center border-b-2 border-dashed border-[#8c897a] pb-3 mb-3">
+                            <div class="text-[11px] tracking-widest uppercase text-[#56595e] font-bold">
+                                ★ ТОРГОВАЯ КОМИССИЯ СТАНЦИИ ★
+                            </div>
+                            <div class="text-lg sm:text-xl font-black tracking-tight text-[#1a2229] mt-0.5">
+                                ОЦЕНОЧНЫЙ ЧЕК
+                            </div>
+                            <div class="flex items-center justify-between text-[11px] text-[#5c5f66] mt-1">
+                                <span id="receiptDocId">КВИТАНЦИЯ #0482</span>
+                                <span id="receiptItemBadge" class="font-bold text-[#2b4960]">КИБЕР-РУКА</span>
+                            </div>
+                        </div>
+
+                        <!-- Статус подлинности и объект -->
+                        <div class="flex items-center justify-between bg-[#e6e2d3] border border-[#b8b3a0] rounded px-3 py-2 mb-3">
+                            <div>
+                                <div class="text-[10px] uppercase text-[#5c5f66]">Объект оценки:</div>
+                                <div id="receiptItemTitle" class="text-sm font-bold text-[#1a2229]">Кибернетическая рука</div>
+                            </div>
+                            <div id="receiptStatusBadge" class="px-2.5 py-1 rounded text-xs font-extrabold bg-[#2e6f40]/15 text-[#2e6f40] border border-[#2e6f40]/40">
+                                ✓ ОРИГИНАЛ
+                            </div>
+                        </div>
+
+                        <!-- Таблица расчетов (выбранные галочки) -->
+                        <div class="mb-3">
+                            <div class="flex justify-between text-[11px] uppercase tracking-wider text-[#65686e] border-b border-[#ccc7b6] pb-1 mb-2 font-bold">
+                                <span>Характеристика / Пункт</span>
+                                <span>Сумма</span>
+                            </div>
+
+                            <!-- Строка базовой стоимости -->
+                            <div class="flex justify-between items-center text-sm py-1 border-b border-dotted border-[#ccc7b6]">
+                                <span class="font-semibold text-[#2d3138]">Базовая стоимость</span>
+                                <span id="receiptBaseRow" class="font-bold text-[#2b4960]">100 ¢</span>
+                            </div>
+
+                            <!-- Список отмеченных характеристик -->
+                            <div id="receiptLinesContainer" class="divide-y divide-dotted divide-[#d4cfc0] max-h-[290px] overflow-y-auto pr-1 my-1">
+                                <!-- Динамические строки чека -->
+                            </div>
+                        </div>
+
+                        <!-- Промежуточный расчет и порог минимальной цены -->
+                        <div class="border-t-2 border-dashed border-[#8c897a] pt-3 space-y-1.5 text-xs">
+                            <div class="flex justify-between text-[#52565e]">
+                                <span>Расчет по характеристикам:</span>
+                                <span id="receiptRawFormula" class="font-semibold">100 ¢ + 0 ¢ = 100 ¢</span>
+                            </div>
+                            <div class="flex justify-between text-[#52565e]">
+                                <span>Минимальная цена по руководству:</span>
+                                <span id="receiptMinRow" class="font-semibold">50 ¢</span>
+                            </div>
+
+                            <!-- Индикатор срабатывания минимальной цены -->
+                            <div id="minFloorAlert" class="hidden bg-amber-500/20 border border-amber-600/50 text-amber-900 rounded px-2.5 py-1.5 text-xs font-bold flex items-center justify-between">
+                                <span>⚠️ Сработал мин. порог цены!</span>
+                                <span id="minFloorSavedVal">Не ниже 50 ¢</span>
+                            </div>
+                        </div>
+
+                        <!-- ИТОГОВАЯ СУММА ОЦЕНКИ (КРУПНЫЙ АКЦЕНТ) -->
+                        <div class="mt-4 bg-[#1c242b] text-[#f4f1e6] rounded-md p-4 border-2 border-[#2b4960] relative overflow-hidden shadow-inner">
+                            <div class="flex items-baseline justify-between">
+                                <div>
+                                    <span class="block text-[11px] uppercase tracking-widest text-[#8ab0cc] font-bold">
+                                        ИТОГОВАЯ СТОИМОСТЬ:
+                                    </span>
+                                    <span id="receiptVerdictSub" class="text-[11px] text-emerald-400">
+                                        Справедливая рыночная цена
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span id="receiptFinalTotal" class="text-3xl sm:text-4xl font-black tracking-tight text-emerald-400">
+                                        100 ¢
+                                    </span>
+                                    <span class="block text-[11px] text-slate-400" id="receiptFinalKrText">100 Кредитов (Кр)</span>
+                                </div>
+                            </div>
+
+                            <!-- Штамп ПОДДЕЛКА поверх итога (если обнаружена подделка) -->
+                            <div id="forgeryStampOverlay" class="hidden absolute inset-0 bg-[#7f1d1d]/95 flex items-center justify-center p-2 stamp-anim">
+                                <div class="border-4 border-rose-200 px-4 py-1 text-center rounded">
+                                    <div class="text-xl sm:text-2xl font-black tracking-widest text-white uppercase">
+                                        ✕ ПОДДЕЛКА — <span id="forgeryStampPrice">0 ¢</span>
+                                    </div>
+                                    <div id="forgeryReasonSub" class="text-[10px] text-rose-200 uppercase tracking-wider">
+                                        Товар является подделкой
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- КНОПКА СБРОСА НА ЧЕКЕ (Красная кнопка со стола оценщика) -->
+                        <div class="mt-4 pt-3 border-t border-[#ccc7b6]">
+                            <button onclick="resetCurrentTab()" class="w-full desk-btn-red py-2.5 px-4 rounded font-bold text-xs sm:text-sm flex items-center justify-center gap-2">
+                                <span class="bg-[#4d1b16] px-1.5 py-0.5 rounded text-rose-200 font-black">✕</span>
+                                <span>СБРОСИТЬ ВЫБОР (НОВЫЙ ТОВАР)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="receipt-jagged-bottom"></div>
+                </div>
+
+            </aside>
+        </div>
+    </main>
+    </div>
+
+    <!-- ================= JAVASCRIPT ЛОГИКА КАЛЬКУЛЯТОРА ================= -->
+    <script>
+        // --- ЗВУКОВОЙ ДВИЖОК ТЕРМИНАЛА ---
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function playTerminalSound(type = 'check') {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (type === 'check') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(780, now + 0.045);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                } else if (type === 'uncheck') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(420, now);
+                    osc.frequency.exponentialRampToValueAtTime(280, now + 0.045);
+                    gain.gain.setValueAtTime(0.045, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+                    osc.start(now);
+                    osc.stop(now + 0.06);
+                } else if (type === 'stamp') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(140, now);
+                    osc.frequency.exponentialRampToValueAtTime(55, now + 0.14);
+                    gain.gain.setValueAtTime(0.11, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.16);
+                } else if (type === 'tab') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(340, now);
+                    osc.frequency.exponentialRampToValueAtTime(460, now + 0.04);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.055);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+        soundEnabled = !soundEnabled;
+        const btn = document.getElementById('soundToggleBtn');
+        btn.textContent = soundEnabled ? '🔊 Звук' : '🔇 Без звука';
+        if (soundEnabled) playTerminalSound('check');
+    }
+
+    // --- УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ И ФОНОМ ---
+    let uiVisible = true;
+    
+    function toggleUi() {
+        uiVisible = !uiVisible;
+        const mainContent = document.getElementById('mainContent');
+        const bgDimmer = document.getElementById('bgDimmerOverlay');
+        const btn = document.getElementById('toggleUiBtn');
+        
+        if (uiVisible) {
+            mainContent.style.opacity = '1';
+            mainContent.style.pointerEvents = 'auto';
+            bgDimmer.style.opacity = document.getElementById('bgOpacityRange').value / 100;
+            btn.innerHTML = '👁️ Скрыть интерфейс';
+            btn.classList.replace('text-emerald-400', 'text-[#a9c7df]');
+            btn.classList.replace('border-emerald-500/50', 'border-[#485b6b]');
+        } else {
+            mainContent.style.opacity = '0';
+            mainContent.style.pointerEvents = 'none';
+            bgDimmer.style.opacity = '0';
+            btn.innerHTML = '👁️ Показать интерфейс';
+            btn.classList.replace('text-[#a9c7df]', 'text-emerald-400');
+            btn.classList.replace('border-[#485b6b]', 'border-emerald-500/50');
+        }
+        playTerminalSound('check');
+    }
+
+    function updateBgDimmer(value) {
+        const overlay = document.getElementById('bgDimmerOverlay');
+        if (overlay && uiVisible) {
+            // Преобразуем значение ползунка от 30 до 95 в opacity от 0.3 до 0.95
+            const opacity = value / 100;
+            overlay.style.opacity = opacity;
+        }
+    }
+
+    function handleCustomBgUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Устанавливаем загруженное изображение как фон
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    document.getElementById('resetBgBtn').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetCustomBg() {
+            // Возвращаем стандартный фон
+            document.body.style.backgroundImage = `url('Gemini_Generated_Image_qbmhq1qbmhq1qbmh_3.jpg')`;
+            document.getElementById('resetBgBtn').classList.add('hidden');
+            document.getElementById('bgFileInput').value = '';
+        }
+
+        // =========================================================================
+        // СОСТОЯНИЕ 3 КАТЕГОРИЙ ТОВАРОВ (СТРОГО ПО СКРИНШОТАМ ИГРЫ)
+        // =========================================================================
+        const TABS = [
+            { id: 'arm', name: '🦾 Кибернетическая рука', badge: 'КИБЕР-РУКА', base: 100, min: 50 },
+            { id: 'ribwich', name: '🥪 Сэндвич RIBWICH', badge: 'RIBWICH', base: 150, min: 40 },
+            { id: 'plasma', name: '⚡ Плазменный картридж', badge: 'ПЛАЗМА-КАРТРИДЖ', base: 300, min: 90 }
+        ];
+
+        let activeTab = 'arm';
+
+        // 1. Состояние Кибернетической руки (Стр. 1/4 – 4/4)
+        let armState = {
+            material: 'alum',       // 'alum' (+0), 'carbon' (+50), 'gold' (+200)
+            wear: false,            // Износ (-35)
+            damage: false,          // Повреждения (-85)
+            interface: 'emg',       // 'emg' (+0), 'emg_plus' (+45), 'neural' (+120), 'none' (-60)
+            armor: false,           // Броня (+50)
+            blade: false            // Клинок (+80)
+        };
+
+        // 2. Состояние Сэндвича RIBWICH (Стр. 1/3 – 3/3)
+        const HIGH_QUALITY_SITES = [1, 2, 5, 8, 21, 34];
+        const LOW_QUALITY_SITES = [7, 15, 18, 26, 31];
+
+        let ribwichState = {
+            basePrice: 150,         // Базовая стоимость сэндвича (150 Кр по стр. 1/3)
+            minPrice: 40,           // Минимальная стоимость / подделка (40 Кр по стр. 1/3)
+            packaging: 'ok',        // 'ok' (+0) | 'torn' (Порвана/отсутствует -> 40 Кр)
+            batch: 'batch2',        // 'batch1' (+80 Кр) | 'batch2' (+0 Кр) | 'fake' (Неверная дата -> 40 Кр)
+            date01425: false,       // Первый месяц выпуска (01.425) (+50 Кр)
+            date12438: false,       // Последний месяц выпуска (12.438) (+50 Кр)
+            siteNumber: 35,         // 1..35 (или 0 = неверный/отсутствует -> подделка)
+            sesameBun: false,       // Булочка с кунжутом (для Deluxe Edition)
+            extraPickles: false,    // Дополнительные солёные огурцы (для Deluxe Edition)
+            doubleMeat: false,      // Двойной слой мяса (+800)
+            davreLogo: 'orig',      // 'orig' (+0) | 'wrong' (ПОДДЕЛКА)
+            ribwichLogo: 'orig'     // 'orig' (+0) | 'wrong' (ПОДДЕЛКА)
+        };
+
+        // 3. Состояние Плазменного картриджа (Стр. 1/7 – 7/7)
+        let plasmaState = {
+            wearLevel: 'standard',  // 'standard' (+0), 'light' (-45), 'heavy' (-90)
+            cracks: false,          // Трещины (-150)
+            screws: false,          // Видны винты (-30)
+            reinforced: false,      // Усиленный корпус (+60)
+            color: 'standard',      // 'standard' (+0), 'low' (-150), 'high' (+150)
+            manufacturer: 'none'    // 'wld', 'zhs', 'rnr', 'ign', 'none'
+        };
+
+        // =========================================================================
+        // ПИКСЕЛЬ-АРТ SVG ИЛЛЮСТРАЦИИ ИЗ СКРИНШОТОВ РУКОВОДСТВА
+        // =========================================================================
+
+        // --- Иллюстрации Кибернетической руки (Материалы, Состояния, Дополнения) ---
+        function getCyberHandSvg(variant) {
+            let mainFill = '#8c9696', shadeFill = '#687373', jointFill = '#4c5454';
+            let isCarbon = false, isGold = false;
+            let hasWear = false, hasDamage = false;
+            let hasArmor = false, hasBlade = false;
+
+            if (variant === 'carbon') {
+                mainFill = '#35383d'; shadeFill = '#24262b'; jointFill = '#181a1d';
+                isCarbon = true;
+            } else if (variant === 'gold') {
+                mainFill = '#cfa063'; shadeFill = '#9e7139'; jointFill = '#e6dec8';
+                isGold = true;
+            } else if (variant === 'wear') {
+                hasWear = true;
+            } else if (variant === 'damage') {
+                hasDamage = true;
+            } else if (variant === 'armor') {
+                hasArmor = true;
+            } else if (variant === 'blade') {
+                hasBlade = true;
+            }
+
+            return `
+            <svg viewBox="0 0 130 190" class="w-24 sm:w-28 h-36 sm:h-40 mx-auto drop-shadow-md pixelated">
+                ${hasBlade ? `
+                    <!-- Боковой клинок слева (как на стр. 3/4 руководства) -->
+                    <polygon points="24,132 6,42 18,12 31,95 34,132" fill="#b7c2c2" stroke="#232528" stroke-width="2.2"/>
+                    <polygon points="18,12 24,95 31,95 22,22" fill="#889494"/>
+                    <rect x="23" y="102" width="10" height="5" fill="#687373" stroke="#232528" stroke-width="1.5"/>
+                    <rect x="25" y="120" width="10" height="5" fill="#687373" stroke="#232528" stroke-width="1.5"/>
+                ` : ''}
+
+                <!-- Запястье / Манжета -->
+                <polygon points="40,148 90,148 97,182 33,182" fill="${mainFill}" stroke="#232528" stroke-width="2.5"/>
+                <rect x="39" y="138" width="52" height="10" fill="${shadeFill}" stroke="#232528" stroke-width="2"/>
+
+                <!-- Ладонь -->
+                <polygon points="29,84 99,84 107,115 91,140 39,140 25,108" fill="${mainFill}" stroke="#232528" stroke-width="2.5"/>
+
+                ${isCarbon ? `
+                    <line x1="35" y1="95" x2="85" y2="135" stroke="#494e56" stroke-width="2"/>
+                    <line x1="30" y1="108" x2="70" y2="138" stroke="#494e56" stroke-width="2"/>
+                    <line x1="50" y1="90" x2="95" y2="125" stroke="#494e56" stroke-width="2"/>
+                ` : ''}
+
+                <!-- Мизинец -->
+                <rect x="25" y="34" width="11" height="48" rx="5" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+                <circle cx="30.5" cy="56" r="3.5" fill="${jointFill}" stroke="#232528" stroke-width="1.5"/>
+
+                <!-- Безымянный (сломан кончик при Повреждениях) -->
+                ${hasDamage ? `
+                    <rect x="41" y="28" width="12" height="54" rx="3" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+                    <polygon points="41,28 45,23 49,30 53,26 53,32 41,32" fill="#3a2323"/>
+                ` : `
+                    <rect x="41" y="16" width="12" height="66" rx="5" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+                `}
+                <circle cx="47" cy="46" r="4" fill="${jointFill}" stroke="#232528" stroke-width="1.5"/>
+
+                <!-- Средний -->
+                <rect x="59" y="10" width="13" height="72" rx="6" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+                <circle cx="65.5" cy="44" r="4" fill="${jointFill}" stroke="#232528" stroke-width="1.5"/>
+
+                <!-- Указательный -->
+                <rect x="78" y="18" width="12" height="64" rx="5" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+                <circle cx="84" cy="47" r="4" fill="${jointFill}" stroke="#232528" stroke-width="1.5"/>
+
+                <!-- Большой палец -->
+                <path d="M97 122 L114 86 C117 75, 109 65, 103 68 L93 96 Z" fill="${mainFill}" stroke="#232528" stroke-width="2"/>
+
+                ${isGold ? `
+                    <!-- Белые ромбы на золотой руке -->
+                    <polygon points="30,75 34,83 30,91 26,83" fill="#e6dec8" stroke="#4a3820" stroke-width="1.2"/>
+                    <polygon points="47,73 51,82 47,91 43,82" fill="#e6dec8" stroke="#4a3820" stroke-width="1.2"/>
+                    <polygon points="65,72 70,82 65,92 60,82" fill="#e6dec8" stroke="#4a3820" stroke-width="1.2"/>
+                    <polygon points="84,73 88,82 84,91 80,82" fill="#e6dec8" stroke="#4a3820" stroke-width="1.2"/>
+                ` : ''}
+
+                ${hasWear ? `
+                    <!-- Потертости и бурые пятна износа (как на стр. 2/4) -->
+                    <path d="M33 96 l14 -6 M31 112 l18 -8 M72 104 l16 -5 M45 152 l18 -4" stroke="#6b4c42" stroke-width="2.5"/>
+                    <ellipse cx="42" cy="118" rx="9" ry="5" fill="#6b4c42" opacity="0.55"/>
+                    <ellipse cx="82" cy="108" rx="7" ry="4" fill="#6b4c42" opacity="0.55"/>
+                    <ellipse cx="102" cy="82" rx="4" ry="7" fill="#6b4c42" opacity="0.6"/>
+                ` : ''}
+
+                ${hasDamage ? `
+                    <!-- Вскрытая черная панель с проводами и зеленым индикатором (как на стр. 2/4) -->
+                    <polygon points="31,84 48,86 54,136 39,138" fill="#232329" stroke="#151519" stroke-width="2"/>
+                    <circle cx="41" cy="96" r="4" fill="#3a282e" stroke="#9e4747" stroke-width="1.5"/>
+                    <circle cx="44" cy="112" r="4" fill="#3a282e" stroke="#9e4747" stroke-width="1.5"/>
+                    <rect x="47" y="118" width="5" height="9" fill="#4cd964"/>
+                    <path d="M35 88 l12 45" stroke="#d9534f" stroke-width="1.5"/>
+                    <ellipse cx="78" cy="110" rx="8" ry="4" fill="#6b4c42" opacity="0.55"/>
+                ` : ''}
+
+                ${hasArmor ? `
+                    <!-- Бронепластина поверх ладони и запястья с зеленым контуром (как на стр. 3/4) -->
+                    <polygon points="26,76 92,76 95,118 32,118" fill="#7c8787" stroke="#232528" stroke-width="2.5"/>
+                    <polyline points="42,78 46,115 80,115 82,78" fill="none" stroke="#68a357" stroke-width="1.8"/>
+                    <polygon points="38,142 92,142 90,162 40,162" fill="#7c8787" stroke="#232528" stroke-width="2"/>
+                    <polyline points="55,144 55,156 75,156 75,144" fill="none" stroke="#68a357" stroke-width="1.6"/>
+                ` : ''}
+            </svg>`;
+        }
+
+        // --- Иконки интерфейса управления рукой (EMG, EMG+, Нейронный) ---
+        function getInterfaceIconSvg(type) {
+            if (type === 'emg') {
+                return `
+                <svg viewBox="0 0 80 65" class="w-16 h-14 mx-auto">
+                    <text x="40" y="16" text-anchor="middle" fill="#3c3d38" font-family="JetBrains Mono" font-weight="bold" font-size="12">⚡EMG</text>
+                    <path d="M44 26 L33 42 H43 L37 56 L50 39 H40 Z" fill="#3c3d38"/>
+                </svg>`;
+            }
+            if (type === 'emg_plus') {
+                return `
+                <svg viewBox="0 0 80 65" class="w-16 h-14 mx-auto">
+                    <text x="40" y="16" text-anchor="middle" fill="#3c3d38" font-family="JetBrains Mono" font-weight="bold" font-size="12">⚡EMG⁺</text>
+                    <path d="M41 26 L30 42 H40 L34 56 L47 39 H37 Z" fill="#3c3d38"/>
+                    <text x="54" y="38" fill="#3c3d38" font-family="JetBrains Mono" font-weight="bold" font-size="14">+</text>
+                </svg>`;
+            }
+            if (type === 'neural') {
+                return `
+                <svg viewBox="0 0 80 65" class="w-16 h-14 mx-auto">
+                    <text x="40" y="16" text-anchor="middle" fill="#3c3d38" font-family="JetBrains Mono" font-weight="bold" font-size="12">✻ NI</text>
+                    <circle cx="40" cy="41" r="3.5" fill="#3c3d38"/>
+                    <path d="M40 41 L30 31 M30 31 L25 32 M30 31 L31 26
+                             M40 41 L50 31 M50 31 L55 32 M50 31 L49 26
+                             M40 41 L28 44 M28 44 L24 41 M28 44 L25 48
+                             M40 41 L53 48 M53 48 L58 47 M53 48 L54 53
+                             M40 41 L38 54 M38 54 L34 57 M38 54 L42 57" stroke="#3c3d38" stroke-width="2" stroke-linecap="round"/>
+                </svg>`;
+            }
+            return `
+            <svg viewBox="0 0 80 65" class="w-16 h-14 mx-auto">
+                <text x="40" y="42" text-anchor="middle" fill="#6e6f68" font-family="JetBrains Mono" font-size="11">Пусто</text>
+            </svg>`;
+        }
+
+        // --- Иллюстрации наклеек DAVRE и RIBWICH (Стр. 3/3 сэндвича) ---
+        function getDavreStickerSvg(isOrig) {
+            return `
+            <svg viewBox="0 0 64 60" class="w-14 h-14 mx-auto drop-shadow-sm pixelated">
+                <rect x="4" y="4" width="56" height="52" rx="4" fill="#9c332b" stroke="#dcd6b8" stroke-width="4"/>
+                ${isOrig ? `
+                    <text x="32" y="40" text-anchor="middle" fill="#dcd6b8" font-family="Rubik, sans-serif" font-weight="900" font-size="25">DA</text>
+                    <line x1="16" y1="16" x2="48" y2="44" stroke="#dcd6b8" stroke-width="4"/>
+                ` : ''}
+            </svg>`;
+        }
+
+        function getRibwichStickerSvg(isOrig) {
+            return `
+            <svg viewBox="0 0 84 48" class="w-20 h-12 mx-auto drop-shadow-sm pixelated">
+                <rect x="4" y="4" width="76" height="40" rx="4" fill="#50663d" stroke="#dcd6b8" stroke-width="4"/>
+                ${isOrig ? `
+                    <!-- Оригинал: широкий сэндвич с 1 волнистой линией -->
+                    <rect x="18" y="14" width="48" height="5" rx="2" fill="#dcd6b8"/>
+                    <path d="M18 24 Q22 21 26 24 T34 24 T42 24 T50 24 T58 24 T66 24" fill="none" stroke="#dcd6b8" stroke-width="3"/>
+                    <rect x="18" y="30" width="48" height="5" rx="2" fill="#dcd6b8"/>
+                ` : `
+                    <!-- Неправильно: узкий высокий шахматный бургер -->
+                    <rect x="27" y="10" width="30" height="4" rx="1" fill="#dcd6b8"/>
+                    <line x1="27" y1="18" x2="57" y2="18" stroke="#dcd6b8" stroke-width="3" stroke-dasharray="4,3"/>
+                    <line x1="29" y1="23" x2="55" y2="23" stroke="#dcd6b8" stroke-width="3" stroke-dasharray="4,3"/>
+                    <line x1="27" y1="28" x2="57" y2="28" stroke="#dcd6b8" stroke-width="3" stroke-dasharray="4,3"/>
+                    <rect x="27" y="33" width="30" height="4" rx="1" fill="#dcd6b8"/>
+                `}
+            </svg>`;
+        }
+
+        // --- БИРКИ (ПЛОМБЫ) ПРОИЗВОДИТЕЛЕЙ ПЛАЗМЕННЫХ КАРТРИДЖЕЙ (Стр. 5/7 и 6/7) ---
+        function getManufacturerTagSvg(mfgId, className = "w-28 h-16") {
+            if (mfgId === 'wld') {
+                // Wild's Rides (WLD): черная бирка с неоновой радужной рамкой и серой скобой справа
+                return `
+                <svg viewBox="0 0 110 64" class="${className} pixelated drop-shadow">
+                    <!-- Радужная неоновая подложка рамки -->
+                    <rect x="4" y="6" width="90" height="52" fill="#1e162b" stroke="#d4d85c" stroke-width="3"/>
+                    <line x1="10" y1="6" x2="45" y2="6" stroke="#5cd870" stroke-width="3"/>
+                    <line x1="45" y1="6" x2="80" y2="6" stroke="#d85ca8" stroke-width="3"/>
+                    <line x1="10" y1="58" x2="50" y2="58" stroke="#9e5cd8" stroke-width="3"/>
+                    <line x1="50" y1="58" x2="88" y2="58" stroke="#e6d765" stroke-width="3"/>
+                    <line x1="4" y1="15" x2="4" y2="48" stroke="#b57ce6" stroke-width="3"/>
+                    <!-- Внутреннее темное поле -->
+                    <rect x="8" y="10" width="82" height="44" fill="#211829"/>
+                    <!-- Металлическая скоба крепления справа -->
+                    <rect x="90" y="12" width="8" height="40" fill="#7c878e" stroke="#241d23" stroke-width="2"/>
+                    <rect x="98" y="24" width="6" height="16" fill="#525a61" stroke="#241d23" stroke-width="1.5"/>
+                </svg>`;
+            }
+            if (mfgId === 'zhs') {
+                // ZhongHua Shipbuilding (ZHS): темная бирка с круглой красно-золотой печатью и иероглифом 中
+                return `
+                <svg viewBox="0 0 110 64" class="${className} pixelated drop-shadow">
+                    <rect x="4" y="6" width="90" height="52" fill="#231d29" stroke="#8c583a" stroke-width="2.5"/>
+                    <!-- Круглая красно-золотая печать -->
+                    <circle cx="48" cy="32" r="19" fill="#6e2226" stroke="#d49b4b" stroke-width="2.5"/>
+                    <circle cx="48" cy="32" r="14" fill="none" stroke="#d49b4b" stroke-width="1.2" stroke-dasharray="3,2"/>
+                    <!-- Иероглиф 中 -->
+                    <rect x="42" y="25" width="12" height="10" fill="none" stroke="#f0c869" stroke-width="2"/>
+                    <line x1="48" y1="19" x2="48" y2="44" stroke="#f0c869" stroke-width="2.2"/>
+                    <!-- Скоба справа -->
+                    <rect x="92" y="12" width="6" height="40" fill="#4f4350" stroke="#241d23" stroke-width="2"/>
+                </svg>`;
+            }
+            if (mfgId === 'rnr') {
+                // Republic Naval Requisition (RNR): темно-синяя бирка с голубой розой ветров / прицелом
+                return `
+                <svg viewBox="0 0 110 64" class="${className} pixelated drop-shadow">
+                    <rect x="4" y="6" width="90" height="52" fill="#1a2436" stroke="#3c5e78" stroke-width="2.5"/>
+                    <!-- Эмблема флота -->
+                    <circle cx="48" cy="32" r="14" fill="none" stroke="#6ec6d9" stroke-width="2"/>
+                    <circle cx="48" cy="32" r="7" fill="none" stroke="#6ec6d9" stroke-width="1.5"/>
+                    <line x1="48" y1="11" x2="48" y2="53" stroke="#6ec6d9" stroke-width="2"/>
+                    <line x1="25" y1="32" x2="71" y2="32" stroke="#6ec6d9" stroke-width="2"/>
+                    <polygon points="48,10 44,18 52,18" fill="#6ec6d9"/>
+                    <polygon points="48,54 44,46 52,46" fill="#6ec6d9"/>
+                    <polygon points="24,32 32,28 32,36" fill="#6ec6d9"/>
+                    <polygon points="72,32 64,28 64,36" fill="#6ec6d9"/>
+                    <!-- Скоба справа -->
+                    <rect x="92" y="12" width="6" height="40" fill="#3a4c5e" stroke="#18202c" stroke-width="2"/>
+                </svg>`;
+            }
+            if (mfgId === 'ign') {
+                // Ignition Lab (IGN): фиолетовая бирка с голубой планетой с кольцом и надписью IGNITION LAB
+                return `
+                <svg viewBox="0 0 110 64" class="${className} pixelated drop-shadow">
+                    <rect x="4" y="6" width="90" height="52" fill="#221933" stroke="#8d559e" stroke-width="2.5"/>
+                    <!-- Планета и кольцо -->
+                    <circle cx="48" cy="30" r="14" fill="#2c6975"/>
+                    <ellipse cx="48" cy="30" rx="22" ry="6" transform="rotate(-22 48 30)" fill="none" stroke="#62c4d6" stroke-width="2.2"/>
+                    <!-- Звездочки -->
+                    <circle cx="22" cy="18" r="1.5" fill="#e2d9f3"/>
+                    <circle cx="74" cy="44" r="1.5" fill="#e2d9f3"/>
+                    <!-- Надпись IGNITION LAB -->
+                    <text x="48" y="33" text-anchor="middle" fill="#ffffff" font-family="JetBrains Mono" font-weight="900" font-size="10" letter-spacing="0.5">IGNITION</text>
+                    <text x="62" y="43" text-anchor="middle" fill="#d9c2eb" font-family="JetBrains Mono" font-weight="900" font-size="9">LAB</text>
+                    <!-- Скоба справа -->
+                    <rect x="92" y="12" width="6" height="40" fill="#5e456b" stroke="#241d23" stroke-width="2"/>
+                </svg>`;
+            }
+            return `
+            <svg viewBox="0 0 110 64" class="${className} pixelated">
+                <rect x="4" y="6" width="90" height="52" fill="rgba(0,0,0,0.15)" stroke="#7c7867" stroke-width="2" stroke-dasharray="4,4"/>
+                <text x="49" y="36" text-anchor="middle" fill="#52534e" font-family="JetBrains Mono" font-weight="bold" font-size="10">БЕЗ ПЛОМБЫ</text>
+            </svg>`;
+        }
+
+        // --- ПОЛНАЯ ДИНАМИЧЕСКАЯ ИЛЛЮСТРАЦИЯ ПЛАЗМЕННОГО КАРТРИДЖА (С БИРКОЙ, ЦВЕТОМ И ДЕФЕКТАМИ) ---
+        function getFullPlasmaCartridgeSvg(opts = {}) {
+            const wear = opts.wearLevel || 'standard';   // 'standard' | 'light' | 'heavy'
+            const cracks = !!opts.cracks;
+            const screws = !!opts.screws;
+            const reinforced = !!opts.reinforced;
+            const color = opts.color || 'standard';      // 'standard' | 'low' | 'high'
+            const mfg = opts.manufacturer || 'none';
+
+            // Палитра плазмы по стр. 4/7
+            let bgTube = '#23364c', cloudOuter = '#356e73', cloudInner = '#57b8b2', coreStroke = '#d8f7f2';
+            if (color === 'low') {
+                // Низкое качество (-150): зелено-болотный или тускло-серый оттенок (как на стр. 4/7 и 5/7)
+                bgTube = '#0b5d55';
+                cloudOuter = '#12a896';
+                cloudInner = '#3ff5d4';
+                coreStroke = '#e0fff8';
+            } else if (color === 'high') {
+                // Высокое качество (+150): пурпурно-фиолетовый (как на стр. 4/7 и 6/7)
+                bgTube = '#2d293b';
+                cloudOuter = '#59284e';
+                cloudInner = '#803775';
+                coreStroke = '#e3b8d8';
+            }
+
+            return `
+            <svg viewBox="0 0 420 140" class="w-full max-w-md mx-auto drop-shadow-md pixelated">
+                <!-- Левая металлическая крышка-клемма -->
+                <rect x="28" y="22" width="12" height="92" fill="#5e4c5c" stroke="#241d23" stroke-width="2.5"/>
+                <rect x="40" y="12" width="34" height="112" rx="3" fill="#6e576b" stroke="#241d23" stroke-width="2.5"/>
+                <rect x="44" y="42" width="26" height="12" fill="#7aa6ad"/>
+
+                <!-- Правая металлическая крышка-клемма -->
+                <rect x="358" y="22" width="12" height="92" fill="#5e4c5c" stroke="#241d23" stroke-width="2.5"/>
+                <rect x="324" y="12" width="34" height="112" rx="3" fill="#6e576b" stroke="#241d23" stroke-width="2.5"/>
+                <rect x="328" y="42" width="26" height="12" fill="#7aa6ad"/>
+
+                <!-- Стеклянная колба с плазмой -->
+                <rect x="74" y="17" width="250" height="102" fill="${bgTube}" stroke="#241d23" stroke-width="3"/>
+
+                <!-- Облака плазмы внутри -->
+                <ellipse cx="199" cy="68" rx="108" ry="36" fill="${cloudOuter}" opacity="0.75"/>
+                <ellipse cx="190" cy="68" rx="76" ry="21" fill="${cloudInner}" opacity="0.9"/>
+                <path d="M122 68 Q168 58 205 68 T278 66" stroke="${coreStroke}" stroke-width="6" fill="none" stroke-linecap="round"/>
+                ${color === 'low' ? `
+                    <!-- Низкое качество: правая половина колбы серая (левая бирюзовая) -->
+                    <clipPath id="plasmaLowGrayHalf"><rect x="199" y="17" width="125" height="102"/></clipPath>
+                    <g clip-path="url(#plasmaLowGrayHalf)">
+                        <rect x="74" y="17" width="250" height="102" fill="#3e4245"/>
+                        <ellipse cx="199" cy="68" rx="108" ry="36" fill="#6b7175" opacity="0.75"/>
+                        <ellipse cx="190" cy="68" rx="76" ry="21" fill="#9aa0a3" opacity="0.9"/>
+                        <path d="M122 68 Q168 58 205 68 T278 66" stroke="#e2e4e5" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    </g>
+                ` : ''}
+
+                <!-- Продольные светлые линии колбы -->
+                <rect x="74" y="17" width="250" height="6" fill="#9ea89f" stroke="#241d23" stroke-width="1.5"/>
+                <rect x="74" y="47" width="250" height="4" fill="#b5bfb6" stroke="#241d23" stroke-width="1"/>
+                <rect x="74" y="81" width="250" height="4" fill="#b5bfb6" stroke="#241d23" stroke-width="1"/>
+                <rect x="74" y="113" width="250" height="6" fill="#9ea89f" stroke="#241d23" stroke-width="1.5"/>
+
+                ${wear === 'light' ? `
+                    <!-- Лёгкий износ (-45): потертость на левом ободе в квадрате как на стр. 2/7 -->
+                    <path d="M44 45 l18 -4 M46 52 l14 -3 M56 40 l10 8" stroke="#453643" stroke-width="2.2"/>
+                    <circle cx="55" cy="48" r="4" fill="#4f6b70"/>
+                ` : ''}
+
+                ${wear === 'heavy' ? `
+                    <!-- Значительный износ (-90): темные царапины на ободе и грязный налет по краям колбы как на стр. 2/7 -->
+                    <path d="M44 20 l16 14 M58 18 l-12 16 M45 62 l20 -8 M48 92 l16 10" stroke="#2d202b" stroke-width="2.5"/>
+                    <polygon points="75,23 145,23 125,36 75,45" fill="#4d5459" opacity="0.7"/>
+                    <polygon points="260,23 323,23 323,48 295,32" fill="#4d5459" opacity="0.7"/>
+                    <polygon points="75,112 135,112 110,98 75,92" fill="#4d5459" opacity="0.65"/>
+                ` : ''}
+
+                ${cracks ? `
+                    <!-- Трещины на стекле слева внизу (-150) как на стр. 3/7 -->
+                    <path d="M98 113 L106 94 L118 82 M106 94 L92 86 M115 113 L122 98 L138 92 M122 98 L112 92" fill="none" stroke="#e6ece8" stroke-width="2"/>
+                ` : ''}
+
+                ${screws ? `
+                    <!-- Видны винты (-30) на левой и правой крышке как на стр. 3/7 -->
+                    <circle cx="57" cy="30" r="3" fill="#2b2129" stroke="#968393" stroke-width="1"/>
+                    <circle cx="57" cy="104" r="3" fill="#2b2129" stroke="#968393" stroke-width="1"/>
+                    <circle cx="341" cy="30" r="3" fill="#2b2129" stroke="#968393" stroke-width="1"/>
+                    <circle cx="341" cy="104" r="3" fill="#2b2129" stroke="#968393" stroke-width="1"/>
+                ` : ''}
+
+                ${reinforced ? `
+                    <!-- Усиленный корпус (+60): 2 вертикальные стяжки по корпусу как на стр. 3/7 -->
+                    <rect x="142" y="14" width="16" height="108" rx="2" fill="#6e576b" stroke="#241d23" stroke-width="2.5"/>
+                    <rect x="145" y="42" width="10" height="14" fill="#7aa6ad"/>
+                    <rect x="242" y="14" width="16" height="108" rx="2" fill="#6e576b" stroke="#241d23" stroke-width="2.5"/>
+                    <rect x="245" y="42" width="10" height="14" fill="#7aa6ad"/>
+                ` : ''}
+
+                <!-- БИРКА (ПЛОМБА) ПРОИЗВОДИТЕЛЯ СПРАВА ВНИЗУ НА КАРТРИДЖЕ (как на стр. 5/7 и 6/7) -->
+                ${mfg !== 'none' ? `
+                    <g transform="translate(248, 66) scale(0.78)">
+                        ${getManufacturerTagInnerGroup(mfg)}
+                    </g>
+                ` : ''}
+            </svg>`;
+        }
+
+        function getManufacturerTagInnerGroup(mfgId) {
+            if (mfgId === 'wld') {
+                return `
+                    <rect x="4" y="6" width="90" height="52" fill="#1e162b" stroke="#d4d85c" stroke-width="3.5"/>
+                    <line x1="10" y1="6" x2="45" y2="6" stroke="#5cd870" stroke-width="3.5"/>
+                    <line x1="45" y1="6" x2="80" y2="6" stroke="#d85ca8" stroke-width="3.5"/>
+                    <line x1="10" y1="58" x2="50" y2="58" stroke="#9e5cd8" stroke-width="3.5"/>
+                    <rect x="8" y="10" width="82" height="44" fill="#211829"/>
+                    <rect x="90" y="12" width="8" height="40" fill="#7c878e" stroke="#241d23" stroke-width="2"/>
+                `;
+            }
+            if (mfgId === 'zhs') {
+                return `
+                    <rect x="4" y="6" width="90" height="52" fill="#231d29" stroke="#8c583a" stroke-width="3"/>
+                    <circle cx="48" cy="32" r="19" fill="#6e2226" stroke="#d49b4b" stroke-width="2.5"/>
+                    <rect x="42" y="25" width="12" height="10" fill="none" stroke="#f0c869" stroke-width="2"/>
+                    <line x1="48" y1="19" x2="48" y2="44" stroke="#f0c869" stroke-width="2.5"/>
+                    <rect x="92" y="12" width="6" height="40" fill="#4f4350" stroke="#241d23" stroke-width="2"/>
+                `;
+            }
+            if (mfgId === 'rnr') {
+                return `
+                    <rect x="4" y="6" width="90" height="52" fill="#1a2436" stroke="#3c5e78" stroke-width="3"/>
+                    <circle cx="48" cy="32" r="14" fill="none" stroke="#6ec6d9" stroke-width="2.2"/>
+                    <line x1="48" y1="11" x2="48" y2="53" stroke="#6ec6d9" stroke-width="2.2"/>
+                    <line x1="25" y1="32" x2="71" y2="32" stroke="#6ec6d9" stroke-width="2.2"/>
+                    <rect x="92" y="12" width="6" height="40" fill="#3a4c5e" stroke="#18202c" stroke-width="2"/>
+                `;
+            }
+            if (mfgId === 'ign') {
+                return `
+                    <rect x="4" y="6" width="90" height="52" fill="#221933" stroke="#8d559e" stroke-width="3"/>
+                    <circle cx="48" cy="30" r="14" fill="#2c6975"/>
+                    <ellipse cx="48" cy="30" rx="22" ry="6" transform="rotate(-22 48 30)" fill="none" stroke="#62c4d6" stroke-width="2.5"/>
+                    <text x="48" y="33" text-anchor="middle" fill="#ffffff" font-family="JetBrains Mono" font-weight="900" font-size="10">IGNITION</text>
+                    <text x="60" y="43" text-anchor="middle" fill="#d9c2eb" font-family="JetBrains Mono" font-weight="900" font-size="9">LAB</text>
+                    <rect x="92" y="12" width="6" height="40" fill="#5e456b" stroke="#241d23" stroke-width="2"/>
+                `;
+            }
+            return '';
+        }
+
+        // =========================================================================
+        // РЕНДЕРИНГ ВКЛАДОК И СТРАНИЦ РУКОВОДСТВА
+        // =========================================================================
+        function initApp() {
+            renderAll();
+        }
+
+        function renderAll() {
+            renderTabs();
+            renderManualContent();
+            renderReceipt();
+        }
+
+        function renderTabs() {
+            const container = document.getElementById('tabsContainer');
+            container.innerHTML = TABS.map(t => {
+                const isActive = t.id === activeTab;
+                return `
+                    <button onclick="switchTab('${t.id}')" 
+                        class="station-tab px-4 sm:px-6 py-2.5 rounded-t-lg text-xs sm:text-sm font-pixel-mono flex items-center gap-2 ${isActive ? 'active' : ''}">
+                        <span>${t.name}</span>
+                        <span class="text-[11px] px-1.5 py-0.5 rounded ${isActive ? 'bg-[#2b4960] text-white' : 'bg-[#1a2026] text-slate-400'}">
+                            ${t.id === 'ribwich' ? ribwichState.basePrice : t.base}¢
+                        </span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function switchTab(tabId) {
+            playTerminalSound('tab');
+            activeTab = tabId;
+            renderAll();
+        }
+
+        function renderManualContent() {
+            const contentDiv = document.getElementById('manualInteractiveContent');
+            const titleEl = document.getElementById('manualTitle');
+            const subEl = document.getElementById('manualSubtitle');
+            const baseEl = document.getElementById('basePriceDisplay');
+            const minEl = document.getElementById('minPriceDisplay');
+            const footerEl = document.getElementById('manualPageFooter');
+
+            if (activeTab === 'arm') {
+                titleEl.textContent = 'Руководство по оценке кибернетической руки';
+                subEl.textContent = 'Цены на кибернетические руки на Станции сильно различаются. На цену влияют материал, состояние, интерфейс управления, дополнения и особые сочетания.';
+                baseEl.textContent = '100 Кр';
+                minEl.textContent = '50 Кр';
+                footerEl.textContent = 'Стр. 1/4 — 4/4';
+                contentDiv.innerHTML = renderCyberArmManual();
+            } else if (activeTab === 'ribwich') {
+                titleEl.textContent = 'Руководство по оценке сэндвичей RIBWICH';
+                subEl.textContent = 'Компания DAVRE изготавливала и упаковывала сэндвичи на 35 площадках. Проверяйте номер площадки, комплектацию Deluxe Edition, слои мяса и оба логотипа.';
+                baseEl.textContent = `${ribwichState.basePrice} Кр`;
+                minEl.textContent = `${ribwichState.minPrice} Кр`;
+                footerEl.textContent = 'Стр. 1/3 — 3/3';
+                contentDiv.innerHTML = renderRibwichManual();
+            } else if (activeTab === 'plasma') {
+                titleEl.textContent = 'Руководство по оценке плазменных картриджей';
+                subEl.textContent = 'Независимо от производителя и текущего состояния, базовая стоимость плазменного картриджа составляет 300 кредитов, а минимальная — 90.';
+                baseEl.textContent = '300 Кр';
+                minEl.textContent = '90 Кр';
+                footerEl.textContent = 'Стр. 1/7 — 7/7';
+                contentDiv.innerHTML = renderPlasmaManual();
+            }
+        }
+
+        // --- ВКЛАДКА 1: КИБЕРНЕТИЧЕСКАЯ РУКА (СТРОГО ПО СКРИНШОТАМ) ---
+        function renderCyberArmManual() {
+            const noWearAndDamage = !armState.wear && !armState.damage;
+
+            // Проверка особых сочетаний (п. 5 руководства)
+            const isTactical = armState.material === 'carbon' &&
+                               (armState.interface === 'emg_plus' || armState.interface === 'neural') &&
+                               noWearAndDamage &&
+                               armState.armor && armState.blade;
+
+            const isDeluxe = armState.material === 'gold' &&
+                             armState.interface === 'neural' &&
+                             noWearAndDamage;
+
+            return `
+                <!-- 1. МАТЕРИАЛ -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-2.5">1. Материал</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        ${[
+                            { id: 'alum', name: 'Алюминиевый сплав', delta: '+0 ¢', svg: 'alum' },
+                            { id: 'carbon', name: 'Углеродный композит', delta: '+50 ¢', svg: 'carbon' },
+                            { id: 'gold', name: 'Золотое покрытие', delta: '+200 ¢', svg: 'gold' }
+                        ].map(m => `
+                            <div onclick="setArmMaterial('${m.id}')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.material === m.id ? 'selected' : ''}">
+                                <div class="mb-2">${getCyberHandSvg(m.svg)}</div>
+                                <div>
+                                    <div class="font-bold text-sm text-[#222421]">${m.name}</div>
+                                    <div class="font-pixel-mono font-extrabold text-xs mt-1 text-[#2b4960]">(${m.delta})</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- 2. СОСТОЯНИЕ (Только Без особенностей, Износ, Повреждения) -->
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">2. Состояние</h3>
+                        <span class="text-xs font-pixel-mono text-[#52534e]">Выберите одно: Износ или Повреждения</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Без особенностей -->
+                        <div onclick="setArmCondition('clean')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${noWearAndDamage ? 'selected' : ''}">
+                            <div class="mb-2">${getCyberHandSvg('alum')}</div>
+                            <div>
+                                <div class="font-bold text-sm text-[#222421]">Без особенностей</div>
+                                <div class="font-pixel-mono font-extrabold text-xs mt-1 text-[#2b4960]">(+0 ¢)</div>
+                            </div>
+                        </div>
+
+                        <!-- Износ (-35) -->
+                        <div onclick="setArmCondition('wear')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.wear ? 'selected border-[#8c3b3b]' : ''}">
+                            <div class="mb-2">${getCyberHandSvg('wear')}</div>
+                            <div>
+                                <div class="font-bold text-sm text-[#222421] flex items-center justify-center gap-1.5">
+                                    <span>${armState.wear ? '☑' : '☐'} Износ</span>
+                                </div>
+                                <div class="font-pixel-mono font-extrabold text-xs mt-1 text-[#8c3b3b]">(-35 ¢)</div>
+                            </div>
+                        </div>
+
+                        <!-- Повреждения (-85) -->
+                        <div onclick="setArmCondition('damage')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.damage ? 'selected border-[#8c3b3b]' : ''}">
+                            <div class="mb-2">${getCyberHandSvg('damage')}</div>
+                            <div>
+                                <div class="font-bold text-sm text-[#222421] flex items-center justify-center gap-1.5">
+                                    <span>${armState.damage ? '☑' : '☐'} Повреждения</span>
+                                </div>
+                                <div class="font-pixel-mono font-extrabold text-xs mt-1 text-[#8c3b3b]">(-85 ¢)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ИНТЕРФЕЙС УПРАВЛЕНИЯ -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-2.5">3. Интерфейс управления</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        ${[
+                            { id: 'emg', name: 'EMG', delta: '+0 ¢', color: 'text-[#2b4960]' },
+                            { id: 'emg_plus', name: 'EMG+', delta: '+45 ¢', color: 'text-[#2e6f40]' },
+                            { id: 'neural', name: 'Нейронный', delta: '+120 ¢', color: 'text-[#2e6f40]' },
+                            { id: 'none', name: 'Не указано', delta: '-60 ¢', color: 'text-[#8c3b3b]' }
+                        ].map(item => `
+                            <div onclick="setArmInterface('${item.id}')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.interface === item.id ? 'selected' : ''}">
+                                ${getInterfaceIconSvg(item.id)}
+                                <div class="mt-1">
+                                    <div class="font-bold text-sm text-[#222421]">${item.name}</div>
+                                    <div class="font-pixel-mono font-extrabold text-xs ${item.color}">(${item.delta})</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- 4. ДОПОЛНЕНИЯ (Броня +50, Клинок +80 — независимы друг от друга) -->
+                <div>
+                    <div class="flex flex-wrap items-center justify-between gap-1 mb-2.5">
+                        <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">4. Дополнения</h3>
+                        <span class="text-xs italic text-[#4a4b46]">Дополнения независимы друг от друга — могут быть и оба сразу</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Броня -->
+                        <div onclick="toggleArmAddon('armor')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.armor ? 'selected' : ''}">
+                            <div class="mb-2">${getCyberHandSvg('armor')}</div>
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-base ${armState.armor ? 'bg-[#2e6f40] text-white border-[#1e4d2b]' : ''}">
+                                    ${armState.armor ? '✓' : ''}
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-sm text-[#222421]">Броня</div>
+                                    <div class="font-pixel-mono font-extrabold text-xs text-[#2e6f40]">(+50 ¢)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Клинок -->
+                        <div onclick="toggleArmAddon('blade')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${armState.blade ? 'selected' : ''}">
+                            <div class="mb-2">${getCyberHandSvg('blade')}</div>
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-base ${armState.blade ? 'bg-[#2e6f40] text-white border-[#1e4d2b]' : ''}">
+                                    ${armState.blade ? '✓' : ''}
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-sm text-[#222421]">Клинок</div>
+                                    <div class="font-pixel-mono font-extrabold text-xs text-[#2e6f40]">(+80 ¢)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. НАДБАВКИ НА ОПРЕДЕЛЁННЫЕ СОЧЕТАНИЯ (Автоматическая проверка) -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-2">5. Надбавки на определённые сочетания</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <!-- Тактическая (+100) -->
+                        <div class="rounded-md p-3 border-2 transition ${isTactical ? 'bg-[#2e6f40]/20 border-[#2e6f40]' : 'bg-[#b8b4a2]/60 border-[#8e8a79]'}">
+                            <div class="flex items-center justify-between font-bold mb-1.5">
+                                <span class="text-[#222421]">Тактическая:</span>
+                                <span class="font-pixel-mono px-2 py-0.5 rounded ${isTactical ? 'bg-[#2e6f40] text-white' : 'bg-[#9e9a89] text-[#2c2d2a]'}">(+100 ¢)</span>
+                            </div>
+                            <ul class="space-y-1 text-xs">
+                                <li class="${armState.material === 'carbon' ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${armState.material === 'carbon' ? '✓' : '—'} Углеродный композит
+                                </li>
+                                <li class="${(armState.interface === 'emg_plus' || armState.interface === 'neural') ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${(armState.interface === 'emg_plus' || armState.interface === 'neural') ? '✓' : '—'} Интерфейс ЭМГ+ или нейронный
+                                </li>
+                                <li class="${noWearAndDamage ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${noWearAndDamage ? '✓' : '—'} Нет следов износа и повреждений
+                                </li>
+                                <li class="${(armState.armor && armState.blade) ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${(armState.armor && armState.blade) ? '✓' : '—'} Наличие брони и клинка
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Делюкс (+200) -->
+                        <div class="rounded-md p-3 border-2 transition ${isDeluxe ? 'bg-[#2e6f40]/20 border-[#2e6f40]' : 'bg-[#b8b4a2]/60 border-[#8e8a79]'}">
+                            <div class="flex items-center justify-between font-bold mb-1.5">
+                                <span class="text-[#222421]">Делюкс:</span>
+                                <span class="font-pixel-mono px-2 py-0.5 rounded ${isDeluxe ? 'bg-[#2e6f40] text-white' : 'bg-[#9e9a89] text-[#2c2d2a]'}">(+200 ¢)</span>
+                            </div>
+                            <ul class="space-y-1 text-xs">
+                                <li class="${armState.material === 'gold' ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${armState.material === 'gold' ? '✓' : '—'} Золотое покрытие
+                                </li>
+                                <li class="${armState.interface === 'neural' ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${armState.interface === 'neural' ? '✓' : '—'} Нейронный интерфейс
+                                </li>
+                                <li class="${noWearAndDamage ? 'text-[#2e6f40] font-bold' : 'text-[#52534e]'}">
+                                    ${noWearAndDamage ? '✓' : '—'} Нет следов износа и повреждений
+                                </li>
+                                <li class="text-[#2e6f40] font-bold">
+                                    ✓ С дополнениями или без
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ВКЛАДКА 2: СЭНДВИЧ RIBWICH (СТРОГО ПО СКРИНШОТАМ) ---
+        function renderRibwichManual() {
+            const sNum = Number(ribwichState.siteNumber);
+            const isInvalidSite = isNaN(sNum) || sNum < 1 || sNum > 35;
+            const isHighSite = !isInvalidSite && HIGH_QUALITY_SITES.includes(sNum);
+            const isLowSite = !isInvalidSite && LOW_QUALITY_SITES.includes(sNum);
+
+            const bothDeluxe = ribwichState.sesameBun && ribwichState.extraPickles;
+            const onlyOneDeluxe = (ribwichState.sesameBun && !ribwichState.extraPickles) || (!ribwichState.sesameBun && ribwichState.extraPickles);
+
+            return `
+                <!-- 1. УПАКОВКА, ПОДДЕЛКИ И МИНИМАЛЬНАЯ СТОИМОСТЬ (Стр. 1/3) -->
+                <div class="bg-[#b8b4a2]/75 border-2 border-[#7c7867] rounded-md p-4 space-y-2.5">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">
+                        1. Упаковка, подделки и минимальная стоимость
+                    </h3>
+                    <p class="text-xs text-[#383935]">
+                        Если пластиковая упаковка отсутствует или порвана, или если это подделка — конечная стоимость всегда будет <b>40 кредитов</b> независимо от всего остального.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <div onclick="setRibwichPackaging('ok')" class="variant-card rounded-md p-3 text-center ${ribwichState.packaging === 'ok' ? 'selected' : ''}">
+                            <div class="font-bold text-sm text-[#222421]">✓ Упаковка целая</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#2e6f40] mt-0.5">(Стандарт)</div>
+                        </div>
+                        <div onclick="setRibwichPackaging('torn')" class="variant-card rounded-md p-3 text-center ${ribwichState.packaging === 'torn' ? 'selected border-rose-800 bg-rose-900/20' : ''}">
+                            <div class="font-bold text-sm text-[#8c3b3b]">✕ Упаковка порвана / Нет</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#8c3b3b] mt-0.5">(Фикс. цена 40 ¢)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ДАТА ПРОИЗВОДСТВА: 1-Я ПАРТИЯ, 2-Я ПАРТИЯ И БОНУСЫ (01.425) / (12.438) (Стр. 1/3) -->
+                <div class="bg-[#b8b4a2]/75 border-2 border-[#7c7867] rounded-md p-4 space-y-3">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">
+                        2. Дата производства (Партия и особые даты)
+                    </h3>
+                    <div class="text-xs font-sans space-y-1 bg-[#c5c1b0] p-2.5 rounded border border-[#9e9a89]">
+                        <div class="font-bold text-[#222421]">● 1-Я ПАРТИЯ: ЯНВАРЬ 425 Г. (01.425) — ДЕКАБРЬ 429 Г. (12.429) <span class="text-[#2e6f40]">(+80 Кр)</span></div>
+                        <div class="font-bold text-[#222421]">● 2-Я ПАРТИЯ: ЯНВАРЬ 432 Г. (01.432) — ДЕКАБРЬ 438 Г. (12.438) <span class="text-[#2b4960]">(+0 Кр)</span></div>
+                        <div class="text-[#4a4b46]">● Если дата отсутствует или не соответствует периодам — <b>это подделка (40 Кр)</b>.</div>
+                    </div>
+
+                    <!-- Кнопки выбора партии -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div onclick="setRibwichBatch('batch1')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${ribwichState.batch === 'batch1' ? 'selected' : ''}">
+                            <div class="font-extrabold text-sm text-[#222421]">1-Я ПАРТИЯ</div>
+                            <div class="text-[11px] text-[#4a4b46] my-0.5">01.425 — 12.429</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#2e6f40]">(+80 ¢)</div>
+                        </div>
+
+                        <div onclick="setRibwichBatch('batch2')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${ribwichState.batch === 'batch2' ? 'selected' : ''}">
+                            <div class="font-extrabold text-sm text-[#222421]">2-Я ПАРТИЯ</div>
+                            <div class="text-[11px] text-[#4a4b46] my-0.5">01.432 — 12.438</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#2b4960]">(+0 ¢)</div>
+                        </div>
+
+                        <div onclick="setRibwichBatch('fake')" class="variant-card rounded-md p-3 text-center flex flex-col justify-between ${ribwichState.batch === 'fake' ? 'selected border-rose-800 bg-rose-900/20' : ''}">
+                            <div class="font-extrabold text-sm text-[#8c3b3b]">Неверная / Нет даты</div>
+                            <div class="text-[11px] text-[#8c3b3b] my-0.5">Вне партий</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#8c3b3b]">(ПОДДЕЛКА — 40 ¢)</div>
+                        </div>
+                    </div>
+
+                    <!-- Дополнительные бонусы (01.425) и (12.438) -->
+                    <div class="pt-1">
+                        <div class="text-xs font-bold text-[#2e6f40] mb-2">
+                            Дополнительный исторический бонус за первый и последний месяцы выпуска (+50 Кр):
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div onclick="toggleRibwichCheck('date01425')" class="check-row rounded-md p-3 flex items-center justify-between gap-2 cursor-pointer ${ribwichState.date01425 ? 'active-bonus' : ''}">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${ribwichState.date01425 ? '✓' : ''}</div>
+                                    <div>
+                                        <div class="font-bold text-sm text-[#222421]">Первый месяц (01.425)</div>
+                                        <div class="text-[11px] text-[#4a4b46]">Начало 1-й партии</div>
+                                    </div>
+                                </div>
+                                <span class="font-pixel-mono font-extrabold text-xs px-2 py-1 rounded bg-[#2e6f40] text-white whitespace-nowrap">+50 ¢</span>
+                            </div>
+
+                            <div onclick="toggleRibwichCheck('date12438')" class="check-row rounded-md p-3 flex items-center justify-between gap-2 cursor-pointer ${ribwichState.date12438 ? 'active-bonus' : ''}">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${ribwichState.date12438 ? '✓' : ''}</div>
+                                    <div>
+                                        <div class="font-bold text-sm text-[#222421]">Последний месяц (12.438)</div>
+                                        <div class="text-[11px] text-[#4a4b46]">Конец 2-й партии</div>
+                                    </div>
+                                </div>
+                                <span class="font-pixel-mono font-extrabold text-xs px-2 py-1 rounded bg-[#2e6f40] text-white whitespace-nowrap">+50 ¢</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. МЕСТО ПРОИЗВОДСТВА И УПАКОВКИ (#01 – #35) -->
+                <div class="bg-[#b8b4a2]/75 border-2 border-[#7c7867] rounded-md p-4 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">
+                            3. Место производства и упаковки (#01 – #35)
+                        </h3>
+                        <div class="flex items-center gap-2 font-pixel-mono text-xs">
+                            <span>Ввод №:</span>
+                            <input type="number" min="0" max="99" value="${isInvalidSite ? '' : sNum}" placeholder="01-35"
+                                oninput="setRibwichSite(this.value)"
+                                class="w-16 bg-[#f4f1e6] border-2 border-[#2b4960] rounded px-2 py-1 text-center font-extrabold text-sm text-[#1a2229]">
+                            <button onclick="setRibwichSite(0)" 
+                                class="px-2.5 py-1 rounded font-bold text-xs ${isInvalidSite ? 'bg-rose-800 text-white' : 'bg-[#8c3b3b]/20 text-[#8c3b3b] border border-[#8c3b3b]'}">
+                                Нет № / Неверный
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-xs font-sans space-y-1 bg-[#c5c1b0] p-2.5 rounded border border-[#9e9a89]">
+                        <div class="font-bold text-[#2e6f40]">
+                            ● ВЫСОКИЕ СТАНДАРТЫ КАЧЕСТВА (+50 Кр): 01, 02, 05, 08, 21, 34
+                        </div>
+                        <div class="font-bold text-[#8c3b3b]">
+                            ● НИЗКИЕ СТАНДАРТЫ КАЧЕСТВА (-50 Кр): 07, 15, 18, 26, 31
+                        </div>
+                        <div class="text-[#4a4b46]">
+                            ● Всего 35 площадок. Если номер отсутствует или неверный — <b>это подделка</b>.
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-1.5 font-pixel-mono">
+                        ${Array.from({ length: 35 }, (_, i) => i + 1).map(n => {
+                            const numStr = String(n).padStart(2, '0');
+                            const isSel = sNum === n;
+                            const hi = HIGH_QUALITY_SITES.includes(n);
+                            const lo = LOW_QUALITY_SITES.includes(n);
+                            let btnStyle = 'bg-[#dcd8c8] text-[#2c2d2a] border-[#8a8675] hover:bg-white';
+                            if (hi) btnStyle = 'bg-[#2e6f40]/20 text-[#1e4d2b] border-[#2e6f40] font-bold';
+                            if (lo) btnStyle = 'bg-[#8c3b3b]/20 text-[#632424] border-[#8c3b3b] font-bold';
+                            if (isSel) btnStyle = 'bg-[#2b4960] text-white border-[#142430] ring-2 ring-[#2b4960] font-black scale-105';
+                            return `<button onclick="setRibwichSite(${n})" class="py-1.5 rounded border text-xs transition ${btnStyle}">#${numStr}</button>`;
+                        }).join('')}
+                    </div>
+
+                    ${isInvalidSite ? `
+                        <div class="bg-rose-800 text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
+                            <span>✕ НОМЕР ПЛОЩАДКИ ОТСУТСТВУЕТ ИЛИ НЕВЕРНЫЙ</span>
+                            <span>ПОДДЕЛКА (0 ¢)</span>
+                        </div>
+                    ` : isHighSite ? `
+                        <div class="bg-[#2e6f40] text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
+                            <span>✓ Площадка #${String(sNum).padStart(2, '0')}: Высокие стандарты качества</span>
+                            <span>+50 ¢</span>
+                        </div>
+                    ` : isLowSite ? `
+                        <div class="bg-[#8c3b3b] text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
+                            <span>⚠️ Площадка #${String(sNum).padStart(2, '0')}: Низкие стандарты качества</span>
+                            <span>-50 ¢</span>
+                        </div>
+                    ` : `
+                        <div class="bg-[#2b4960] text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
+                            <span>✓ Площадка #${String(sNum).padStart(2, '0')}: Стандартная площадка</span>
+                            <span>+0 ¢</span>
+                        </div>
+                    `}
+                </div>
+
+                <!-- 4. ВАРИАНТ DELUXE EDITION (Стр. 3/3) -->
+                <div class="bg-[#b8b4a2]/75 border-2 border-[#7c7867] rounded-md p-4 space-y-2.5">
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">4. Вариант Deluxe Edition</h3>
+                    <p class="text-xs text-[#383935] font-bold uppercase">
+                        У таких сэндвичей должна быть И булочка с кунжутом, И дополнительные солёные огурцы. Если есть только что-то одно, значит, это подделка!
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                        <div onclick="toggleRibwichCheck('sesameBun')" class="check-row rounded-md p-3 flex items-center gap-3 cursor-pointer ${ribwichState.sesameBun ? (onlyOneDeluxe ? 'active-forgery' : 'active-bonus') : ''}">
+                            <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${ribwichState.sesameBun ? '✓' : ''}</div>
+                            <span class="font-bold text-sm text-[#222421]">Булочка с кунжутом</span>
+                        </div>
+
+                        <div onclick="toggleRibwichCheck('extraPickles')" class="check-row rounded-md p-3 flex items-center gap-3 cursor-pointer ${ribwichState.extraPickles ? (onlyOneDeluxe ? 'active-forgery' : 'active-bonus') : ''}">
+                            <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${ribwichState.extraPickles ? '✓' : ''}</div>
+                            <span class="font-bold text-sm text-[#222421]">Дополнительные солёные огурцы</span>
+                        </div>
+                    </div>
+
+                    ${bothDeluxe ? `
+                        <div class="bg-[#2e6f40] text-white font-pixel-mono text-xs font-bold px-3 py-1.5 rounded flex justify-between">
+                            <span>✓ Настоящая версия «Deluxe Edition» (оба признака)</span>
+                            <span>+300 ¢</span>
+                        </div>
+                    ` : onlyOneDeluxe ? `
+                        <div class="bg-rose-800 text-white font-pixel-mono text-xs font-bold px-3 py-1.5 rounded flex justify-between">
+                            <span>✕ Есть только 1 признак Deluxe Edition из двух!</span>
+                            <span>ПОДДЕЛКА (0 ¢)</span>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- 5. ДВОЙНОЙ СЛОЙ МЯСА (+800 Кр) -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-2">5. Двойной слой мяса</h3>
+                    <div onclick="toggleRibwichCheck('doubleMeat')" class="check-row rounded-md p-3.5 flex items-center justify-between gap-3 cursor-pointer ${ribwichState.doubleMeat ? 'active-bonus' : ''}">
+                        <div class="flex items-center gap-3">
+                            <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${ribwichState.doubleMeat ? '✓' : ''}</div>
+                            <div>
+                                <div class="font-bold text-sm sm:text-base text-[#222421]">Двойной слой мяса в сэндвиче</div>
+                                <div class="text-xs text-[#4a4b46]">Редкий сбой упаковочных машин — чрезвычайно высокая ценность</div>
+                            </div>
+                        </div>
+                        <span class="font-pixel-mono font-extrabold text-sm px-2.5 py-1 rounded bg-[#2e6f40] text-white whitespace-nowrap">+800 ¢</span>
+                    </div>
+                </div>
+
+                <!-- 6. ЛОГОТИП DAVRE И 7. ЛОГОТИП RIBWICH (Стр. 3/3) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 6. Логотип DAVRE -->
+                    <div class="bg-[#b8b4a2]/60 border border-[#8e8a79] rounded-md p-3">
+                        <h3 class="text-sm sm:text-base font-extrabold text-[#2b4960] mb-1">6. Логотип DAVRE</h3>
+                        <p class="text-[11px] text-[#4a4b46] mb-2.5">Если отсутствует или изображён неверно — подделка.</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setRibwichLogo('davreLogo', 'orig')" class="variant-card rounded p-2 text-center ${ribwichState.davreLogo === 'orig' ? 'selected' : ''}">
+                                ${getDavreStickerSvg(true)}
+                                <div class="text-xs font-bold italic text-[#2e6f40] mt-1">Оригинал</div>
+                            </div>
+                            <div onclick="setRibwichLogo('davreLogo', 'wrong')" class="variant-card rounded p-2 text-center ${ribwichState.davreLogo === 'wrong' ? 'selected border-rose-800 bg-rose-900/20' : ''}">
+                                ${getDavreStickerSvg(false)}
+                                <div class="text-xs font-bold italic text-[#8c3b3b] mt-1">Неправильно / Нет</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Логотип RIBWICH -->
+                    <div class="bg-[#b8b4a2]/60 border border-[#8e8a79] rounded-md p-3">
+                        <h3 class="text-sm sm:text-base font-extrabold text-[#2b4960] mb-1">7. Логотип RIBWICH</h3>
+                        <p class="text-[11px] text-[#4a4b46] mb-2.5">На 2-й партии обязателен (на 1-й партии наклеек не было).</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setRibwichLogo('ribwichLogo', 'orig')" class="variant-card rounded p-2 text-center ${ribwichState.ribwichLogo === 'orig' ? 'selected' : ''}">
+                                ${getRibwichStickerSvg(true)}
+                                <div class="text-xs font-bold italic text-[#2e6f40] mt-1">Оригинал / 1-я парт.</div>
+                            </div>
+                            <div onclick="setRibwichLogo('ribwichLogo', 'wrong')" class="variant-card rounded p-2 text-center ${ribwichState.ribwichLogo === 'wrong' ? 'selected border-rose-800 bg-rose-900/20' : ''}">
+                                ${getRibwichStickerSvg(false)}
+                                <div class="text-xs font-bold italic text-[#8c3b3b] mt-1">Неправильно / Нет</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ВКЛАДКА 3: ПЛАЗМЕННЫЙ КАРТРИДЖ (СТРОГО ПО СКРИНШОТАМ + БИРКИ ПРОИЗВОДИТЕЛЕЙ) ---
+        function checkPlasmaManufacturerMatch(mfgId) {
+            const isCleanWear = plasmaState.wearLevel === 'standard';
+            const noExtraDefects = !plasmaState.cracks && !plasmaState.screws;
+            const isStrictlyNoFeatures = isCleanWear && noExtraDefects && !plasmaState.reinforced;
+            const isNoFeaturesOrReinforced = isCleanWear && noExtraDefects; // нет особенностей или усиленный
+
+            if (mfgId === 'wld') {
+                // WLD: состояния любые | цвета: низкое качество, стандарт
+                const stateOk = true;
+                const colorOk = (plasmaState.color === 'low' || plasmaState.color === 'standard');
+                return { matched: stateOk && colorOk, stateOk, colorOk, bonus: 60 };
+            }
+            if (mfgId === 'zhs') {
+                // ZHS: состояния: нет особенностей или усиленный | цвет: стандарт
+                const stateOk = isNoFeaturesOrReinforced;
+                const colorOk = (plasmaState.color === 'standard');
+                return { matched: stateOk && colorOk, stateOk, colorOk, bonus: 120 };
+            }
+            if (mfgId === 'rnr') {
+                // RNR: состояния: любые, кроме трещин | цвет: стандарт
+                const stateOk = !plasmaState.cracks;
+                const colorOk = (plasmaState.color === 'standard');
+                return { matched: stateOk && colorOk, stateOk, colorOk, bonus: 120 };
+            }
+            if (mfgId === 'ign') {
+                // IGN: состояния: нет особенностей | цвет: высокое качество
+                const stateOk = isStrictlyNoFeatures;
+                const colorOk = (plasmaState.color === 'high');
+                return { matched: stateOk && colorOk, stateOk, colorOk, bonus: 750 };
+            }
+            return { matched: false, stateOk: false, colorOk: false, bonus: 0 };
+        }
+
+        function renderPlasmaManual() {
+            const mfgList = [
+                {
+                    id: 'wld',
+                    title: "Wild's Rides (WLD)",
+                    condText: 'любые',
+                    colorText: 'низкое качество, стандарт',
+                    bonusText: '+60 кредитов',
+                    bonus: 60
+                },
+                {
+                    id: 'zhs',
+                    title: 'ZhongHua Shipbuilding (ZHS)',
+                    condText: 'нет особенностей или усиленный',
+                    colorText: 'стандарт',
+                    bonusText: '+120 кредитов',
+                    bonus: 120
+                },
+                {
+                    id: 'rnr',
+                    title: 'Republic Naval Requisition (RNR)',
+                    condText: 'любые, кроме трещин',
+                    colorText: 'стандарт',
+                    bonusText: '+120 кредитов',
+                    bonus: 120
+                },
+                {
+                    id: 'ign',
+                    title: 'Ignition Lab (IGN)',
+                    condText: 'нет особенностей',
+                    colorText: 'высокое качество',
+                    bonusText: '+750 кредитов',
+                    bonus: 750
+                }
+            ];
+
+            return `
+                <!-- ЖИВОЕ ПРЕВЬЮ СОБРАННОГО КАРТРИДЖА С БИРКОЙ -->
+                <div class="bg-[#b8b4a2]/70 border-2 border-[#7c7867] rounded-md p-3 text-center">
+                    ${getFullPlasmaCartridgeSvg(plasmaState)}
+                    <div class="text-xs font-bold italic text-[#3a3b37] mt-1 font-sans">
+                        ТЕКУЩИЙ ВИД КАРТРИДЖА И ПЛОМБЫ ПРОИЗВОДИТЕЛЯ
+                    </div>
+                </div>
+
+                <!-- 1. СОСТОЯНИЕ КАРТРИДЖА (Стр. 2/7 и 3/7) -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-1">1. Состояние картриджа</h3>
+                    <p class="text-xs text-[#4a4b46] mb-2.5">Состояние — это сумма всех характеристик картриджа (износ + особенности корпуса).</p>
+
+                    <!-- Износ корпуса (Стандарт / Лёгкий износ / Значительный износ) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+                        ${[
+                            { id: 'standard', label: 'Стандарт', sub: '(цена без изменений)', delta: '+0 ¢', color: 'text-[#2b4960]' },
+                            { id: 'light', label: 'Лёгкий износ', sub: 'потертости обода', delta: '-45 ¢', color: 'text-[#8c3b3b]' },
+                            { id: 'heavy', label: 'Значительный износ', sub: 'сильные потертости и налет', delta: '-90 ¢', color: 'text-[#8c3b3b]' }
+                        ].map(w => `
+                            <div onclick="setPlasmaWear('${w.id}')" class="variant-card rounded-md p-2.5 text-center ${plasmaState.wearLevel === w.id ? 'selected' : ''}">
+                                <div class="font-bold text-sm text-[#222421]">${w.label}</div>
+                                <div class="text-[11px] text-[#52534e]">${w.sub}</div>
+                                <div class="font-pixel-mono font-extrabold text-xs mt-1 ${w.color}">${w.delta}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Дополнительные характеристики состояния (Трещины -150, Видны винты -30, Усиленный корпус +60) -->
+                    <div class="space-y-2">
+                        <div onclick="togglePlasmaFeature('cracks')" class="check-row rounded-md p-3 flex items-center justify-between cursor-pointer ${plasmaState.cracks ? 'active-penalty' : ''}">
+                            <div class="flex items-center gap-3">
+                                <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${plasmaState.cracks ? '✓' : ''}</div>
+                                <div>
+                                    <div class="font-bold text-sm sm:text-base text-[#222421]">Трещины на колбе</div>
+                                    <div class="text-xs text-[#52534e]">Трещины стекла в нижней части картриджа</div>
+                                </div>
+                            </div>
+                            <span class="font-pixel-mono font-extrabold text-xs sm:text-sm px-2.5 py-1 rounded bg-[#8c3b3b] text-white">-150 ¢</span>
+                        </div>
+
+                        <div onclick="togglePlasmaFeature('screws')" class="check-row rounded-md p-3 flex items-center justify-between cursor-pointer ${plasmaState.screws ? 'active-penalty' : ''}">
+                            <div class="flex items-center gap-3">
+                                <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${plasmaState.screws ? '✓' : ''}</div>
+                                <div>
+                                    <div class="font-bold text-sm sm:text-base text-[#222421]">Видны винты</div>
+                                    <div class="text-xs text-[#52534e]">Неприкрытые шляпки винтов на боковых ободах</div>
+                                </div>
+                            </div>
+                            <span class="font-pixel-mono font-extrabold text-xs sm:text-sm px-2.5 py-1 rounded bg-[#8c3b3b] text-white">-30 ¢</span>
+                        </div>
+
+                        <div onclick="togglePlasmaFeature('reinforced')" class="check-row rounded-md p-3 flex items-center justify-between cursor-pointer ${plasmaState.reinforced ? 'active-bonus' : ''}">
+                            <div class="flex items-center gap-3">
+                                <div class="pixel-checkbox rounded-sm font-pixel-mono font-black text-lg">${plasmaState.reinforced ? '✓' : ''}</div>
+                                <div>
+                                    <div class="font-bold text-sm sm:text-base text-[#222421]">Усиленный корпус</div>
+                                    <div class="text-xs text-[#52534e]">Два дополнительных вертикальных ребра жесткости</div>
+                                </div>
+                            </div>
+                            <span class="font-pixel-mono font-extrabold text-xs sm:text-sm px-2.5 py-1 rounded bg-[#2e6f40] text-white">+60 ¢</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ЦВЕТ ПЛАЗМЫ (Стр. 4/7) -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960] mb-1">2. Цвет плазмы</h3>
+                    <p class="text-xs text-[#4a4b46] mb-2.5">Любой цвет, отличающийся от стандартной (сине-бирюзовой) или высококачественной (фиолетовой) плазмы, считается низким качеством.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <!-- Стандарт -->
+                        <div onclick="setPlasmaColor('standard')" class="variant-card rounded-md p-3 text-center ${plasmaState.color === 'standard' ? 'selected' : ''}">
+                            <div class="w-full h-7 rounded border border-[#241d23] mb-2 flex items-center justify-center" style="background: linear-gradient(90deg, #23364c 0%, #57b8b2 50%, #23364c 100%);">
+                                <div class="w-3/4 h-1.5 bg-[#d8f7f2] rounded"></div>
+                            </div>
+                            <div class="font-bold text-sm text-[#222421]">Стандарт</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#2b4960] mt-0.5">(+0 ¢)</div>
+                        </div>
+
+                        <!-- Низкое качество (-150) -->
+                        <div onclick="setPlasmaColor('low')" class="variant-card rounded-md p-3 text-center ${plasmaState.color === 'low' ? 'selected border-[#8c3b3b]' : ''}">
+                            <div class="w-full h-7 rounded border border-[#241d23] mb-2 flex items-center justify-center" style="background: linear-gradient(90deg, #0b5d55 0%, #3ff5d4 50%, #9aa0a3 50%, #3e4245 100%);">
+                                <div class="w-3/4 h-1.5 bg-[#e0fff8] rounded"></div>
+                            </div>
+                            <div class="font-bold text-sm text-[#222421]">Низкое качество</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#8c3b3b] mt-0.5">(-150 ¢)</div>
+                        </div>
+
+                        <!-- Высокое качество (+150) -->
+                        <div onclick="setPlasmaColor('high')" class="variant-card rounded-md p-3 text-center ${plasmaState.color === 'high' ? 'selected border-[#2e6f40]' : ''}">
+                            <div class="w-full h-7 rounded border border-[#241d23] mb-2 flex items-center justify-center" style="background: linear-gradient(90deg, #2d293b 0%, #803775 50%, #2d293b 100%);">
+                                <div class="w-3/4 h-1.5 bg-[#e3b8d8] rounded"></div>
+                            </div>
+                            <div class="font-bold text-sm text-[#222421]">Высокое качество</div>
+                            <div class="font-pixel-mono font-extrabold text-xs text-[#2e6f40] mt-0.5">(+150 ¢)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. ПРОИЗВОДИТЕЛЬ КАРТРИДЖА И БИРКИ (ПЛОМБЫ) (Стр. 5/7 и 6/7) -->
+                <div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                        <h3 class="text-base sm:text-lg font-extrabold text-[#2b4960]">3. Производитель картриджа (Бирка / Пломба)</h3>
+                        <button onclick="setPlasmaManufacturer('none')" class="px-2.5 py-1 rounded text-xs font-pixel-mono font-bold border ${plasmaState.manufacturer === 'none' ? 'bg-[#2b4960] text-white border-[#1b3142]' : 'bg-[#dcd8c8] text-[#3a3b37] border-[#8a8675]'}">
+                            Без пломбы (+0 ¢)
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${mfgList.map(m => {
+                            const isSelected = plasmaState.manufacturer === m.id;
+                            const check = checkPlasmaManufacturerMatch(m.id);
+                            return `
+                                <div onclick="setPlasmaManufacturer('${m.id}')" class="variant-card rounded-md p-3.5 flex flex-col justify-between ${isSelected ? 'selected' : ''}">
+                                    <div>
+                                        <div class="flex items-center justify-between gap-2 mb-2">
+                                            <span class="font-extrabold text-sm sm:text-base text-[#1e2226]">${m.title}</span>
+                                            ${isSelected ? `<span class="px-2 py-0.5 text-[10px] font-pixel-mono font-bold rounded bg-[#2b4960] text-white">ВЫБРАНО</span>` : ''}
+                                        </div>
+
+                                        <!-- Крупное изображение бирки (пломбы) производителя -->
+                                        <div class="bg-[#b4b09e]/70 border border-[#8a8675] rounded p-2 mb-2.5 flex items-center justify-center">
+                                            ${getManufacturerTagSvg(m.id, "w-32 h-18")}
+                                        </div>
+
+                                        <!-- Условия производителя из скриншотов 5/7 и 6/7 -->
+                                        <div class="text-xs space-y-1 text-[#2c2d2a]">
+                                            <div class="${isSelected ? (check.stateOk ? 'text-[#2e6f40] font-bold' : 'text-[#8c3b3b] font-bold') : ''}">
+                                                ${isSelected ? (check.stateOk ? '✓' : '✕') : '•'} <b>Состояния:</b> ${m.condText}
+                                            </div>
+                                            <div class="${isSelected ? (check.colorOk ? 'text-[#2e6f40] font-bold' : 'text-[#8c3b3b] font-bold') : ''}">
+                                                ${isSelected ? (check.colorOk ? '✓' : '✕') : '•'} <b>Цвета:</b> ${m.colorText}
+                                            </div>
+                                            <div>• <b>Наличие пломбы:</b> всегда</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 pt-2 border-t border-[#9e9a89] flex items-center justify-between font-pixel-mono text-xs">
+                                        <span class="font-bold text-[#2e6f40]">Все соответствуют:</span>
+                                        <span class="px-2 py-0.5 rounded font-extrabold ${isSelected && check.matched ? 'bg-[#2e6f40] text-white' : 'bg-[#2e6f40]/15 text-[#2e6f40]'}">
+                                            +${m.bonus} ¢
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // ОБРАБОТЧИКИ КЛИКОВ
+        // =========================================================================
+        function setArmMaterial(matId) {
+            playTerminalSound('check');
+            armState.material = matId;
+            renderAll();
+        }
+
+        function setArmCondition(type) {
+            playTerminalSound('check');
+            if (type === 'clean') {
+                armState.wear = false;
+                armState.damage = false;
+            } else if (type === 'wear') {
+                // Только одно состояние: Износ ИЛИ Повреждения
+                armState.wear = !armState.wear;
+                armState.damage = false;
+            } else if (type === 'damage') {
+                armState.damage = !armState.damage;
+                armState.wear = false;
+            }
+            renderAll();
+        }
+
+        function setArmInterface(ifId) {
+            playTerminalSound('check');
+            armState.interface = ifId;
+            renderAll();
+        }
+
+        function toggleArmAddon(addonKey) {
+            armState[addonKey] = !armState[addonKey];
+            playTerminalSound(armState[addonKey] ? 'check' : 'uncheck');
+            renderAll();
+        }
+
+        function setRibwichSite(val) {
+            playTerminalSound('check');
+            const parsed = parseInt(val, 10);
+            ribwichState.siteNumber = isNaN(parsed) ? 0 : parsed;
+            renderAll();
+        }
+
+        function setRibwichPackaging(val) {
+            ribwichState.packaging = val;
+            playTerminalSound(val === 'torn' ? 'stamp' : 'check');
+            renderAll();
+        }
+
+        function setRibwichBatch(batchVal) {
+            ribwichState.batch = batchVal;
+            playTerminalSound(batchVal === 'fake' ? 'stamp' : 'check');
+            renderAll();
+        }
+
+        function toggleRibwichCheck(key) {
+            ribwichState[key] = !ribwichState[key];
+            if (key === 'date01425' && ribwichState.date01425) {
+                ribwichState.date12438 = false;
+                ribwichState.batch = 'batch1';
+            } else if (key === 'date12438' && ribwichState.date12438) {
+                ribwichState.date01425 = false;
+                ribwichState.batch = 'batch2';
+            }
+            playTerminalSound(ribwichState[key] ? 'check' : 'uncheck');
+            renderAll();
+        }
+
+        function setRibwichLogo(logoKey, val) {
+            ribwichState[logoKey] = val;
+            playTerminalSound(val === 'wrong' ? 'stamp' : 'check');
+            renderAll();
+        }
+
+        function setPlasmaWear(level) {
+            playTerminalSound('check');
+            plasmaState.wearLevel = level;
+            renderAll();
+        }
+
+        function togglePlasmaFeature(key) {
+            plasmaState[key] = !plasmaState[key];
+            playTerminalSound(plasmaState[key] ? 'check' : 'uncheck');
+            renderAll();
+        }
+
+        function setPlasmaColor(col) {
+            playTerminalSound('check');
+            plasmaState.color = col;
+            renderAll();
+        }
+
+        function setPlasmaManufacturer(mfg) {
+            playTerminalSound('check');
+            plasmaState.manufacturer = mfg;
+            renderAll();
+        }
+
+        function resetCurrentTab() {
+            playTerminalSound('uncheck');
+            if (activeTab === 'arm') {
+                armState = { material: 'alum', wear: false, damage: false, interface: 'emg', armor: false, blade: false };
+            } else if (activeTab === 'ribwich') {
+                ribwichState = {
+                    basePrice: 150,
+                    minPrice: 40,
+                    packaging: 'ok',
+                    batch: 'batch2',
+                    date01425: false,
+                    date12438: false,
+                    siteNumber: 35,
+                    sesameBun: false,
+                    extraPickles: false,
+                    doubleMeat: false,
+                    davreLogo: 'orig',
+                    ribwichLogo: 'orig'
+                };
+            } else if (activeTab === 'plasma') {
+                plasmaState = { wearLevel: 'standard', cracks: false, screws: false, reinforced: false, color: 'standard', manufacturer: 'none' };
+            }
+            document.getElementById('receiptDocId').textContent = `КВИТАНЦИЯ #${Math.floor(1000 + Math.random() * 9000)}`;
+            renderAll();
+        }
+
+        // =========================================================================
+        // РАСЧЕТ И ОТРИСОВКА ПРАВОГО ЧЕКА
+        // =========================================================================
+        function calculateCurrentReceipt() {
+            const lines = [];
+            let basePrice = 100;
+            let minPrice = 50;
+            let isForgery = false;
+            let forgeryReason = '';
+
+            if (activeTab === 'arm') {
+                basePrice = 100;
+                minPrice = 50;
+
+                // 1. Материал
+                if (armState.material === 'alum') lines.push({ label: '1. Материал: Алюминиевый сплав', delta: 0 });
+                if (armState.material === 'carbon') lines.push({ label: '1. Материал: Углеродный композит', delta: 50 });
+                if (armState.material === 'gold') lines.push({ label: '1. Материал: Золотое покрытие', delta: 200 });
+
+                // 2. Состояние
+                if (!armState.wear && !armState.damage) {
+                    lines.push({ label: '2. Состояние: Без особенностей', delta: 0 });
+                } else {
+                    if (armState.wear) lines.push({ label: '2. Состояние: Износ', delta: -35 });
+                    if (armState.damage) lines.push({ label: '2. Состояние: Повреждения', delta: -85 });
+                }
+
+                // 3. Интерфейс
+                if (armState.interface === 'emg') lines.push({ label: '3. Интерфейс: EMG', delta: 0 });
+                if (armState.interface === 'emg_plus') lines.push({ label: '3. Интерфейс: EMG+', delta: 45 });
+                if (armState.interface === 'neural') lines.push({ label: '3. Интерфейс: Нейронный (NI)', delta: 120 });
+                if (armState.interface === 'none') lines.push({ label: '3. Интерфейс: Не указано', delta: -60 });
+
+                // 4. Дополнения
+                if (armState.armor) lines.push({ label: '4. Дополнение: Броня', delta: 50 });
+                if (armState.blade) lines.push({ label: '4. Дополнение: Клинок', delta: 80 });
+
+                // 5. Сочетания
+                const noWearAndDamage = !armState.wear && !armState.damage;
+                const isTactical = armState.material === 'carbon' &&
+                                   (armState.interface === 'emg_plus' || armState.interface === 'neural') &&
+                                   noWearAndDamage &&
+                                   armState.armor && armState.blade;
+                const isDeluxe = armState.material === 'gold' &&
+                                 armState.interface === 'neural' &&
+                                 noWearAndDamage;
+
+                if (isTactical) lines.push({ label: '5. Сочетание: Тактическая', delta: 100 });
+                if (isDeluxe) lines.push({ label: '5. Сочетание: Делюкс', delta: 200 });
+
+            } else if (activeTab === 'ribwich') {
+                basePrice = ribwichState.basePrice;
+                minPrice = ribwichState.minPrice;
+
+                // 1. Упаковка
+                if (ribwichState.packaging === 'torn') {
+                    isForgery = true;
+                    forgeryReason = 'Упаковка порвана или отсутствует (цена 40 ¢)';
+                    lines.push({ label: '1. Упаковка: Порвана / Отсутствует', delta: 0, isForgery: true });
+                } else {
+                    lines.push({ label: '1. Упаковка: Целая', delta: 0 });
+                }
+
+                // 2. Дата производства (1-Я ПАРТИЯ / 2-Я ПАРТИЯ и бонусы 01.425 / 12.438)
+                if (ribwichState.batch === 'batch1') {
+                    lines.push({ label: '2. Партия: 1-Я ПАРТИЯ (425–429 г.)', delta: 80 });
+                } else if (ribwichState.batch === 'batch2') {
+                    lines.push({ label: '2. Партия: 2-Я ПАРТИЯ (432–438 г.)', delta: 0 });
+                } else if (ribwichState.batch === 'fake') {
+                    isForgery = true;
+                    forgeryReason = 'Неверная или отсутствует дата производства';
+                    lines.push({ label: '2. Дата производства: Неверная / Нет', delta: 0, isForgery: true });
+                }
+
+                if (ribwichState.date01425) {
+                    lines.push({ label: '2. Особая дата: Первый месяц (01.425)', delta: 50 });
+                }
+                if (ribwichState.date12438) {
+                    lines.push({ label: '2. Особая дата: Последний месяц (12.438)', delta: 50 });
+                }
+
+                // 3. Площадка
+                const sNum = Number(ribwichState.siteNumber);
+                if (isNaN(sNum) || sNum < 1 || sNum > 35) {
+                    isForgery = true;
+                    forgeryReason = 'Неверный или отсутствует № площадки';
+                    lines.push({ label: 'Площадка производства: Неверная/Нет', delta: 0, isForgery: true });
+                } else {
+                    const pad = String(sNum).padStart(2, '0');
+                    if (HIGH_QUALITY_SITES.includes(sNum)) {
+                        lines.push({ label: `Площадка #${pad} (Высокий стандарт)`, delta: 50 });
+                    } else if (LOW_QUALITY_SITES.includes(sNum)) {
+                        lines.push({ label: `Площадка #${pad} (Низкий стандарт)`, delta: -50 });
+                    } else {
+                        lines.push({ label: `Площадка #${pad} (Стандарт DAVRE)`, delta: 0 });
+                    }
+                }
+
+                // Deluxe Edition
+                if (ribwichState.sesameBun && ribwichState.extraPickles) {
+                    lines.push({ label: 'Вариант «Deluxe Edition» (кунжут + огурцы)', delta: 300 });
+                } else if (ribwichState.sesameBun || ribwichState.extraPickles) {
+                    isForgery = true;
+                    forgeryReason = 'Только 1 признак Deluxe Edition из двух';
+                    lines.push({ label: 'Неполный Deluxe Edition (только 1 признак)', delta: 0, isForgery: true });
+                }
+
+                // Двойной слой мяса
+                if (ribwichState.doubleMeat) {
+                    lines.push({ label: 'Двойной слой мяса', delta: 800 });
+                }
+
+                // Логотипы
+                if (ribwichState.davreLogo === 'wrong') {
+                    isForgery = true;
+                    forgeryReason = 'Неправильный или отсутствует логотип DAVRE';
+                    lines.push({ label: 'Логотип DAVRE: Неправильный / Нет', delta: 0, isForgery: true });
+                } else {
+                    lines.push({ label: 'Логотип DAVRE: Оригинал', delta: 0 });
+                }
+
+                if (ribwichState.ribwichLogo === 'wrong') {
+                    isForgery = true;
+                    forgeryReason = 'Неправильная наклейка RIBWICH';
+                    lines.push({ label: 'Наклейка RIBWICH: Неправильная / Нет', delta: 0, isForgery: true });
+                } else {
+                    lines.push({ label: 'Наклейка RIBWICH: Оригинал', delta: 0 });
+                }
+
+            } else if (activeTab === 'plasma') {
+                basePrice = 300;
+                minPrice = 90;
+
+                // 1. Состояние
+                if (plasmaState.wearLevel === 'standard') lines.push({ label: 'Состояние: Стандарт', delta: 0 });
+                if (plasmaState.wearLevel === 'light') lines.push({ label: 'Состояние: Лёгкий износ', delta: -45 });
+                if (plasmaState.wearLevel === 'heavy') lines.push({ label: 'Состояние: Значительный износ', delta: -90 });
+
+                if (plasmaState.cracks) lines.push({ label: 'Состояние: Трещины', delta: -150 });
+                if (plasmaState.screws) lines.push({ label: 'Состояние: Видны винты', delta: -30 });
+                if (plasmaState.reinforced) lines.push({ label: 'Состояние: Усиленный корпус', delta: 60 });
+
+                // 2. Цвет плазмы
+                if (plasmaState.color === 'standard') lines.push({ label: 'Цвет плазмы: Стандарт', delta: 0 });
+                if (plasmaState.color === 'low') lines.push({ label: 'Цвет плазмы: Низкое качество', delta: -150 });
+                if (plasmaState.color === 'high') lines.push({ label: 'Цвет плазмы: Высокое качество', delta: 150 });
+
+                // 3. Производитель
+                const mfgNames = {
+                    wld: "Wild's Rides (WLD)",
+                    zhs: 'ZhongHua Shipbuilding (ZHS)',
+                    rnr: 'Republic Naval Requisition (RNR)',
+                    ign: 'Ignition Lab (IGN)'
+                };
+                if (plasmaState.manufacturer !== 'none') {
+                    const check = checkPlasmaManufacturerMatch(plasmaState.manufacturer);
+                    const mName = mfgNames[plasmaState.manufacturer];
+                    if (check.matched) {
+                        lines.push({ label: `Пломба ${mName}: Все характеристики соотв.`, delta: check.bonus });
+                    } else {
+                        isForgery = true;
+                        forgeryReason = `Характеристики не соответствуют пломбе ${plasmaState.manufacturer.toUpperCase()}`;
+                        lines.push({ label: `Пломба ${mName}: Несоответствие`, delta: 0, isForgery: true });
+                    }
+                } else {
+                    lines.push({ label: 'Пломба производителя: Отсутствует', delta: 0 });
+                }
+            }
+
+            const modifiersSum = lines.reduce((acc, l) => acc + (l.delta || 0), 0);
+            const rawTotal = basePrice + modifiersSum;
+            let finalPrice = rawTotal;
+            let minFloorTriggered = false;
+
+            if (isForgery) {
+                finalPrice = activeTab === 'ribwich' ? 40 : 0;
+            } else if (rawTotal < minPrice) {
+                finalPrice = minPrice;
+                minFloorTriggered = true;
+            }
+
+            return {
+                basePrice,
+                minPrice,
+                modifiersSum,
+                rawTotal,
+                finalPrice,
+                isForgery,
+                forgeryReason,
+                minFloorTriggered,
+                lines
+            };
+        }
+
+        function renderReceipt() {
+            const tabObj = TABS.find(t => t.id === activeTab);
+            const res = calculateCurrentReceipt();
+
+            document.getElementById('receiptItemBadge').textContent = tabObj.badge;
+            document.getElementById('receiptItemTitle').textContent = tabObj.name.replace(/^[^\wА-Яа-яЁё]+/, '');
+            document.getElementById('receiptBaseRow').textContent = `${res.basePrice} ¢`;
+            document.getElementById('receiptMinRow').textContent = `${res.minPrice} ¢`;
+
+            const statusBadge = document.getElementById('receiptStatusBadge');
+            const forgeryOverlay = document.getElementById('forgeryStampOverlay');
+
+            if (res.isForgery) {
+                statusBadge.textContent = '✕ ПОДДЕЛКА';
+                statusBadge.className = 'px-2.5 py-1 rounded text-xs font-extrabold bg-rose-800 text-white';
+                forgeryOverlay.classList.remove('hidden');
+                document.getElementById('forgeryReasonSub').textContent = res.forgeryReason || 'Товар является подделкой';
+                const stampPriceEl = document.getElementById('forgeryStampPrice');
+                if (stampPriceEl) {
+                    stampPriceEl.textContent = `${res.finalPrice} ¢`;
+                }
+            } else {
+                statusBadge.textContent = '✓ ОРИГИНАЛ';
+                statusBadge.className = 'px-2.5 py-1 rounded text-xs font-extrabold bg-[#2e6f40]/15 text-[#2e6f40] border border-[#2e6f40]/40';
+                forgeryOverlay.classList.add('hidden');
+            }
+
+            const linesContainer = document.getElementById('receiptLinesContainer');
+            linesContainer.innerHTML = res.lines.map(line => {
+                if (line.isForgery) {
+                    return `
+                        <div class="flex justify-between items-center py-1.5 text-xs font-bold text-rose-700">
+                            <span class="pr-2">✕ ${line.label}</span>
+                            <span class="px-1.5 py-0.5 bg-rose-100 border border-rose-400 rounded whitespace-nowrap">ПОДДЕЛКА</span>
+                        </div>
+                    `;
+                }
+                if (line.isWarning) {
+                    return `
+                        <div class="flex justify-between items-center py-1.5 text-xs font-bold text-amber-800">
+                            <span class="pr-2">⚠️ ${line.label}</span>
+                            <span class="px-1.5 py-0.5 bg-amber-100 border border-amber-400 rounded whitespace-nowrap">+0 ¢</span>
+                        </div>
+                    `;
+                }
+                const sign = line.delta > 0 ? `+${line.delta} ¢` : `${line.delta} ¢`;
+                const colorClass = line.delta > 0 ? 'text-[#2e6f40]' : (line.delta < 0 ? 'text-[#8c3b3b]' : 'text-[#52565e]');
+                return `
+                    <div class="flex justify-between items-center py-1.5 text-xs sm:text-[13px]">
+                        <span class="text-[#2b2f36] pr-2">✓ ${line.label}</span>
+                        <span class="font-extrabold whitespace-nowrap ${colorClass}">${sign}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const modSign = res.modifiersSum >= 0 ? `+ ${res.modifiersSum} ¢` : `- ${Math.abs(res.modifiersSum)} ¢`;
+            document.getElementById('receiptRawFormula').textContent = `${res.basePrice} ¢ ${modSign} = ${res.rawTotal} ¢`;
+
+            const minAlert = document.getElementById('minFloorAlert');
+            if (res.minFloorTriggered) {
+                minAlert.classList.remove('hidden');
+                document.getElementById('minFloorSavedVal').textContent = `Выплата поднята до ${res.minPrice} ¢`;
+            } else {
+                minAlert.classList.add('hidden');
+            }
+
+            document.getElementById('receiptFinalTotal').textContent = `${res.finalPrice} ¢`;
+            document.getElementById('receiptFinalKrText').textContent = `${res.finalPrice} Кредитов (Кр)`;
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
