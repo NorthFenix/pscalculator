@@ -489,7 +489,7 @@
                 <!-- Нижний колонтитул страницы руководства -->
                 <div class="relative z-10 mt-8 pt-3 border-t border-[#9e9a89] flex items-center justify-between text-xs font-pixel-mono text-[#5a5b54]">
                     <span>ДОКУМЕНТ ТОРГОВОЙ КОМИССИИ СТАНЦИИ</span>
-                    <span id="manualPageFooter" class="italic font-serif text-sm">Стр. 1–4</span>
+                    <span id="manualPageFooter" class="hidden">Стр. 1–4</span>
                 </div>
             </section>
 
@@ -587,7 +587,7 @@
                             <div id="forgeryStampOverlay" class="hidden absolute inset-0 bg-[#7f1d1d]/95 flex items-center justify-center p-2 stamp-anim">
                                 <div class="border-4 border-rose-200 px-4 py-1 text-center rounded">
                                     <div class="text-xl sm:text-2xl font-black tracking-widest text-white uppercase">
-                                        ✕ ПОДДЕЛКА — <span id="forgeryStampPrice">0 ¢</span>
+                                        ✕ ПОДДЕЛКА — <span id="forgeryStampPrice">40 ¢</span>
                                     </div>
                                     <div id="forgeryReasonSub" class="text-[10px] text-rose-200 uppercase tracking-wider">
                                         Товар является подделкой
@@ -1573,7 +1573,7 @@
                     ${isInvalidSite ? `
                         <div class="bg-rose-800 text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
                             <span>✕ НОМЕР ПЛОЩАДКИ ОТСУТСТВУЕТ ИЛИ НЕВЕРНЫЙ</span>
-                            <span>ПОДДЕЛКА (0 ¢)</span>
+                            <span>ПОДДЕЛКА (40 ¢)</span>
                         </div>
                     ` : isHighSite ? `
                         <div class="bg-[#2e6f40] text-white font-pixel-mono text-xs font-bold px-3 py-2 rounded flex justify-between">
@@ -1620,7 +1620,7 @@
                     ` : onlyOneDeluxe ? `
                         <div class="bg-rose-800 text-white font-pixel-mono text-xs font-bold px-3 py-1.5 rounded flex justify-between">
                             <span>✕ Есть только 1 признак Deluxe Edition из двух!</span>
-                            <span>ПОДДЕЛКА (0 ¢)</span>
+                            <span>ПОДДЕЛКА (40 ¢)</span>
                         </div>
                     ` : ''}
                 </div>
@@ -2199,7 +2199,7 @@
             let minFloorTriggered = false;
 
             if (isForgery) {
-                finalPrice = activeTab === 'ribwich' ? 40 : 0;
+                finalPrice = 40; // подделка всегда 40 ¢ (Рибвич и плазменный картридж)
             } else if (rawTotal < minPrice) {
                 finalPrice = minPrice;
                 minFloorTriggered = true;
