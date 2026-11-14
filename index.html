@@ -2199,7 +2199,7 @@
             let minFloorTriggered = false;
 
             if (isForgery) {
-                finalPrice = 40; // подделка всегда 40 ¢ (Рибвич и плазменный картридж)
+                finalPrice = activeTab === 'plasma' ? 90 : 40; // подделка: плазма 90 ¢, Рибвич 40 ¢
             } else if (rawTotal < minPrice) {
                 finalPrice = minPrice;
                 minFloorTriggered = true;
