@@ -2184,9 +2184,8 @@
                     if (check.matched) {
                         lines.push({ label: `Пломба ${mName}: Все характеристики соотв.`, delta: check.bonus });
                     } else {
-                        isForgery = true;
-                        forgeryReason = `Характеристики не соответствуют пломбе ${plasmaState.manufacturer.toUpperCase()}`;
-                        lines.push({ label: `Пломба ${mName}: Несоответствие`, delta: 0, isForgery: true });
+                        // Несоответствие пломбе — не подделка, просто без надбавки за производителя
+                        lines.push({ label: `Пломба ${mName}: Несоответствие (без надбавки)`, delta: 0, isWarning: true });
                     }
                 } else {
                     lines.push({ label: 'Пломба производителя: Отсутствует', delta: 0 });
@@ -2199,7 +2198,7 @@
             let minFloorTriggered = false;
 
             if (isForgery) {
-                finalPrice = activeTab === 'plasma' ? 90 : 40; // подделка: плазма 90 ¢, Рибвич 40 ¢
+                finalPrice = 40; // подделка (Рибвич) — 40 ¢
             } else if (rawTotal < minPrice) {
                 finalPrice = minPrice;
                 minFloorTriggered = true;
